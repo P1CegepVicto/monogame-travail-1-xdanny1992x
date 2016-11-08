@@ -12,9 +12,11 @@ namespace Projet_01
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         GameObject mario;
+        GameObject cible;
         Rectangle fenetre;
         int xWindow = 0;
         int yWindow = 0;
+        public bool sortir = true;
 
 
         public Game1()
@@ -51,10 +53,14 @@ namespace Projet_01
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
             mario = new GameObject();
+            cible = new GameObject();
+            cible.position.Y = 0;
+            cible.position.X = xWindow / 2;
+            cible.sprite = Content.Load<Texture2D>("CibleOmbre.png");
             mario.estVivant = true;
             mario.position.X = 200;
             mario.position.Y = 000;
-            mario.sprite = Content.Load<Texture2D>("poule_small.png");
+            mario.sprite = Content.Load<Texture2D>("poule.png");
 
 
 
@@ -78,23 +84,33 @@ namespace Projet_01
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
+
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
+
+            if (Keyboard.GetState().IsKeyDown(Keys.P))
+
+                sortir = false;
+
+            if (Keyboard.GetState().IsKeyDown(Keys.O))
+
+                sortir = true;
+
             if (Keyboard.GetState().IsKeyDown(Keys.A))
             {
-                mario.position.X -= 2;
+                mario.position.X -= 8;
             }
             if (Keyboard.GetState().IsKeyDown(Keys.W))
             {
-                mario.position.Y -= 2;
+                mario.position.Y -= 8;
             }
             if (Keyboard.GetState().IsKeyDown(Keys.S))
             {
-                mario.position.Y += 2;
+                mario.position.Y += 8;
             }
             if (Keyboard.GetState().IsKeyDown(Keys.D))
             {
-                mario.position.X += 500;
+                mario.position.X += 8;
             }
             if (Keyboard.GetState().IsKeyDown(Keys.Space))
             {
@@ -102,23 +118,46 @@ namespace Projet_01
             }
             if (Keyboard.GetState().IsKeyDown(Keys.R))
             {
-                mario.sprite = Content.Load<Texture2D>("poule_small.png");
+                mario.sprite = Content.Load<Texture2D>("poule.png");
             }
-            if ((mario.position.X+76) < 0)
+            if (sortir == true)
             {
-                mario.position.X = xWindow;
+
+                if ((mario.position.X + mario.sprite.Width) < 0)
+                {
+                    mario.position.X = xWindow;
+                }
+                if ((mario.position.X) > xWindow)
+                {
+                    mario.position.X = -mario.sprite.Width;
+                }
+                if ((mario.position.Y) > yWindow)
+                {
+                    mario.position.Y = -mario.sprite.Height;
+                }
+                if ((mario.position.Y + mario.sprite.Height) < 0)
+                {
+                    mario.position.Y = yWindow;
+                }
             }
-            if ((mario.position.X) > xWindow)
+            else
             {
-                mario.position.X = 0;
-            }
-            if ((mario.position.Y + 198) > yWindow)
-            {
-                mario.position.Y = 0;
-            }
-            if ((mario.position.Y) < 0)
-            {
-                mario.position.X = yWindow;
+                if ((mario.position.X + mario.sprite.Width) >= xWindow)
+                {
+                    mario.position.X = xWindow - mario.sprite.Width;
+                }
+                if ((mario.position.X) <= 0)
+                {
+                    mario.position.X = 0;
+                }
+                if ((mario.position.Y) < 0)
+                {
+                    mario.position.Y = 0;
+                }
+                if ((mario.position.Y + mario.sprite.Height) > yWindow)
+                {
+                    mario.position.Y = yWindow- mario.sprite.Height;
+                }
             }
             // TODO: Add your update logic here
 
@@ -134,12 +173,14 @@ namespace Projet_01
             GraphicsDevice.Clear(Color.CornflowerBlue);
             spriteBatch.Begin();
             spriteBatch.Draw(mario.sprite, mario.position, Color.White);
+            spriteBatch.Draw(cible.sprite, cible.position, Color.White);
 
 
 
 
 
-        
+
+
             spriteBatch.End();
 
             // TODO: Add your drawing code here

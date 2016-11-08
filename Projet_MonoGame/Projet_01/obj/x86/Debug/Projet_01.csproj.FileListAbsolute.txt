@@ -23,5 +23,6 @@ C:\Users\Danny\Documents\GitHub\monogame-travail-1-xdanny1992x\Projet_MonoGame\P
 C:\Users\Danny\Documents\GitHub\monogame-travail-1-xdanny1992x\Projet_MonoGame\Projet_01\obj\x86\Debug\Projet_01.csprojResolveAssemblyReference.cache
 C:\Users\Danny\Documents\GitHub\monogame-travail-1-xdanny1992x\Projet_MonoGame\Projet_01\obj\x86\Debug\Projet_01.exe
 C:\Users\Danny\Documents\GitHub\monogame-travail-1-xdanny1992x\Projet_MonoGame\Projet_01\obj\x86\Debug\Projet_01.pdb
-C:\Users\Danny\Documents\GitHub\monogame-travail-1-xdanny1992x\Projet_MonoGame\Projet_01\bin\Windows\x86\Debug\Content\poule_small.png
 C:\Users\Danny\Documents\GitHub\monogame-travail-1-xdanny1992x\Projet_MonoGame\Projet_01\bin\Windows\x86\Debug\Content\Oeuf.png
+C:\Users\Danny\Documents\GitHub\monogame-travail-1-xdanny1992x\Projet_MonoGame\Projet_01\bin\Windows\x86\Debug\Content\poule.png
+C:\Users\Danny\Documents\GitHub\monogame-travail-1-xdanny1992x\Projet_MonoGame\Projet_01\bin\Windows\x86\Debug\Content\CibleOmbre.png
