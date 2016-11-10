@@ -12,6 +12,7 @@ namespace Projet_01
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         GameObject mario;
+        GameObject fond;
         GameObject cible;
         Rectangle fenetre;
         int xWindow = 0;
@@ -52,11 +53,16 @@ namespace Projet_01
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
+            fond = new GameObject();
             mario = new GameObject();
             cible = new GameObject();
+            fond.position.X = 0;
+            fond.position.Y = 0;
+            fond.sprite = Content.Load<Texture2D>("Paille.png");
             cible.position.Y = 0;
-            cible.position.X = xWindow / 2;
-            cible.sprite = Content.Load<Texture2D>("CibleOmbre.png");
+            cible.position.X = (xWindow / 2);
+            cible.sprite = Content.Load<Texture2D>("CibleVolante.png");
+            cible.vitesse.X = 10;
             mario.estVivant = true;
             mario.position.X = 200;
             mario.position.Y = 000;
@@ -84,6 +90,13 @@ namespace Projet_01
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
+
+            cible.position.X -= cible.vitesse.X;
+
+            if (cible.position.X<0 || cible.position.X+cible.sprite.Width > xWindow)
+            {
+                cible.vitesse.X = cible.vitesse.X * -1;
+            }
 
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
@@ -172,6 +185,7 @@ namespace Projet_01
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
             spriteBatch.Begin();
+            spriteBatch.Draw(fond.sprite, fond.position, Color.LightGoldenrodYellow);
             spriteBatch.Draw(mario.sprite, mario.position, Color.White);
             spriteBatch.Draw(cible.sprite, cible.position, Color.White);
 
