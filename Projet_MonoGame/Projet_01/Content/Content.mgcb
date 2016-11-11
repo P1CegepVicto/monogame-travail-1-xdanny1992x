@@ -13,3 +13,9 @@
 
 #---------------------------------- Content ---------------------------------#
 
+#begin Sounds/Windy.wav
+/importer:WavImporter
+/processor:SongProcessor
+/processorParam:Quality=Low
+/build:Sounds/Windy.wav
+

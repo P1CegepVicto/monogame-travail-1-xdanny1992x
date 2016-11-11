@@ -1,6 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
+using Projet_01;
 
 namespace Projet_01
 {
@@ -11,14 +14,18 @@ namespace Projet_01
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
-        GameObject mario;
+        GameObject poule;
+        GameObject araignee;
+        GameObject fil;
+        GameObject oeuf;
         GameObject fond;
-        GameObject cible;
+        GameObject fences;
         Rectangle fenetre;
         int xWindow = 0;
         int yWindow = 0;
         public bool sortir = true;
-
+        //SoundEffect son;
+        //SoundEffectInstance vent;
 
         public Game1()
         {
@@ -38,10 +45,9 @@ namespace Projet_01
 
             this.graphics.PreferredBackBufferWidth = graphics.GraphicsDevice.DisplayMode.Width;
             this.graphics.PreferredBackBufferHeight = graphics.GraphicsDevice.DisplayMode.Height;
-            xWindow = graphics.GraphicsDevice.DisplayMode.Width;
-            yWindow = graphics.GraphicsDevice.DisplayMode.Height;
             this.graphics.ToggleFullScreen();
             fenetre = new Rectangle(0, 0, graphics.GraphicsDevice.DisplayMode.Width, graphics.GraphicsDevice.DisplayMode.Height);
+
             base.Initialize();
         }
 
@@ -54,19 +60,31 @@ namespace Projet_01
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
             fond = new GameObject();
-            mario = new GameObject();
-            cible = new GameObject();
+            fond.sprite = Content.Load<Texture2D>("fPaille.png");
             fond.position.X = 0;
             fond.position.Y = 0;
-            fond.sprite = Content.Load<Texture2D>("Paille.png");
-            cible.position.Y = 0;
-            cible.position.X = (xWindow / 2);
-            cible.sprite = Content.Load<Texture2D>("CibleVolante.png");
-            cible.vitesse.X = 10;
-            mario.estVivant = true;
-            mario.position.X = 200;
-            mario.position.Y = 000;
-            mario.sprite = Content.Load<Texture2D>("poule.png");
+            fences = new GameObject();
+            fences.sprite = Content.Load<Texture2D>("fFences.png");
+            fences.position.X = 0;
+            fences.position.Y = 0;
+            poule = new GameObject();
+            poule.isAlive = true;
+            poule.sprite = Content.Load<Texture2D>("sPoule.png");
+            poule.position.X = fenetre.X;
+            poule.position.Y = fenetre.Height / 2 - poule.sprite.Height / 2;
+            poule.velocity.X = 4;
+            poule.velocity.Y = 4;
+            oeuf = new GameObject();
+            araignee = new GameObject();
+            araignee.isAlive = true;
+            araignee.sprite = Content.Load<Texture2D>("sAraignee.png");
+            araignee.position.X = fenetre.Width / 2 - araignee.sprite.Width / 2;
+            araignee.position.Y = fenetre.Y + 128;
+            araignee.velocity.X = 5;
+            fil = new GameObject();
+            //Song son = Content.Load<Song>("Sounds\\Windy.wav");
+            //MediaPlayer.Play(son);
+
 
 
 
@@ -90,93 +108,128 @@ namespace Projet_01
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-
-            cible.position.X -= cible.vitesse.X;
-
-            if (cible.position.X<0 || cible.position.X+cible.sprite.Width > xWindow)
-            {
-                cible.vitesse.X = cible.vitesse.X * -1;
-            }
-
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            if (Keyboard.GetState().IsKeyDown(Keys.P))
-
-                sortir = false;
-
-            if (Keyboard.GetState().IsKeyDown(Keys.O))
-
-                sortir = true;
-
-            if (Keyboard.GetState().IsKeyDown(Keys.A))
-            {
-                mario.position.X -= 8;
-            }
             if (Keyboard.GetState().IsKeyDown(Keys.W))
             {
-                mario.position.Y -= 8;
+                poule.position.Y -= poule.velocity.Y;
             }
             if (Keyboard.GetState().IsKeyDown(Keys.S))
             {
-                mario.position.Y += 8;
+                poule.position.Y += poule.velocity.Y;
+            }
+            if (Keyboard.GetState().IsKeyDown(Keys.A))
+            {
+                poule.position.X -= poule.velocity.X;
             }
             if (Keyboard.GetState().IsKeyDown(Keys.D))
             {
-                mario.position.X += 8;
+                poule.position.X += poule.velocity.X;
             }
-            if (Keyboard.GetState().IsKeyDown(Keys.Space))
-            {
-                mario.sprite = Content.Load<Texture2D>("Oeuf.png");
-            }
-            if (Keyboard.GetState().IsKeyDown(Keys.R))
-            {
-                mario.sprite = Content.Load<Texture2D>("poule.png");
-            }
-            if (sortir == true)
-            {
+            if (Keyboard.GetState().IsKeyDown(Keys.P))
+                sortir = true;
+            if (Keyboard.GetState().IsKeyDown(Keys.O))
+                sortir = false;
 
-                if ((mario.position.X + mario.sprite.Width) < 0)
-                {
-                    mario.position.X = xWindow;
-                }
-                if ((mario.position.X) > xWindow)
-                {
-                    mario.position.X = -mario.sprite.Width;
-                }
-                if ((mario.position.Y) > yWindow)
-                {
-                    mario.position.Y = -mario.sprite.Height;
-                }
-                if ((mario.position.Y + mario.sprite.Height) < 0)
-                {
-                    mario.position.Y = yWindow;
-                }
-            }
-            else
-            {
-                if ((mario.position.X + mario.sprite.Width) >= xWindow)
-                {
-                    mario.position.X = xWindow - mario.sprite.Width;
-                }
-                if ((mario.position.X) <= 0)
-                {
-                    mario.position.X = 0;
-                }
-                if ((mario.position.Y) < 0)
-                {
-                    mario.position.Y = 0;
-                }
-                if ((mario.position.Y + mario.sprite.Height) > yWindow)
-                {
-                    mario.position.Y = yWindow- mario.sprite.Height;
-                }
-            }
+            updatePoule();
+            updateAraignee();
+            updateFences();
+            updateFil();
+            updateOeuf();
+
             // TODO: Add your update logic here
 
             base.Update(gameTime);
         }
 
+        public void updatePoule()
+        {
+            if (sortir == true)
+            {
+                if (poule.position.X > fenetre.Width)
+                {
+                    poule.position.X = fenetre.X - poule.sprite.Width;
+                }
+                if (poule.position.X + poule.sprite.Width < fenetre.X)
+                {
+                    poule.position.X = fenetre.Width;
+                }
+                if (poule.position.Y > fenetre.Height)
+                {
+                    poule.position.Y = fenetre.Y - poule.sprite.Height;
+                }
+                if (poule.position.Y + poule.sprite.Height < fenetre.Y)
+                {
+                    poule.position.Y = fenetre.Height;
+                }
+            }
+            else
+            {
+                if (poule.position.X < fenetre.X + 50)
+                {
+                    poule.position.X = fenetre.X + 50;
+                }
+                if (poule.position.X + poule.sprite.Width > fenetre.Width - 50)
+                {
+                    poule.position.X = fenetre.Width - (50 + poule.sprite.Width);
+                }
+                if (poule.position.Y < fenetre.Y + 20)
+                {
+                    poule.position.Y = fenetre.Y + 20;
+                }
+                if (poule.position.Y + poule.sprite.Height > fenetre.Height - 20)
+                {
+                    poule.position.Y = fenetre.Height - (20 + poule.sprite.Height);
+                }
+            }
+        }
+        public void updateAraignee()
+        {
+            araignee.position.X -= araignee.velocity.X;
+
+            if (sortir == true)
+            {
+                if (araignee.position.X < fenetre.X || araignee.position.X + araignee.sprite.Width > fenetre.Width)
+                {
+                    araignee.velocity.X = araignee.velocity.X * -1;
+                }
+            }
+            else
+            {
+                if (araignee.position.X < fenetre.X + 50 || araignee.position.X + araignee.sprite.Width > fenetre.Width - 50)
+                {
+                    araignee.velocity.X = araignee.velocity.X * -1;
+                }
+                if (araignee.position.X < fenetre.X + 50)
+                {
+                    araignee.position.X = fenetre.X + 50;
+                }
+                if (araignee.position.X + araignee.sprite.Width > fenetre.Width - 50)
+                {
+                    araignee.position.X = fenetre.Width - (50 + araignee.sprite.Width);
+                }
+            }
+        }
+        public void updateFences()
+        {
+            if (sortir == false)
+            {
+                fences.isAlive = true;
+            }
+            else
+            {
+                fences.isAlive = false;
+            }
+        }
+        public void updateFil()
+        {
+
+        }
+        public void updateOeuf()
+        {
+
+        }
         /// <summary>
         /// This is called when the game should draw itself.
         /// </summary>
@@ -185,13 +238,13 @@ namespace Projet_01
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
             spriteBatch.Begin();
-            spriteBatch.Draw(fond.sprite, fond.position, Color.LightGoldenrodYellow);
-            spriteBatch.Draw(mario.sprite, mario.position, Color.White);
-            spriteBatch.Draw(cible.sprite, cible.position, Color.White);
-
-
-
-
+            spriteBatch.Draw(fond.sprite, fond.position, Color.LightGreen);
+            if (fences.isAlive == true)
+            {
+                spriteBatch.Draw(fences.sprite, fences.position, Color.White);
+            }
+            spriteBatch.Draw(poule.sprite, poule.position, Color.White);
+            spriteBatch.Draw(araignee.sprite, araignee.position, Color.White);
 
 
 

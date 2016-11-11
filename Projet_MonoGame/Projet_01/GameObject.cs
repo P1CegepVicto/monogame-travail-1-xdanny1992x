@@ -10,10 +10,18 @@ namespace Projet_01
 {
     class GameObject
     {
-        public bool estVivant;
+        public bool isAlive;
         public Texture2D sprite;
         public Vector2 position;
-        public Vector2 vitesse;
-        
+        public Vector2 velocity;
+        public Rectangle rectCollision = new Rectangle();
+        public Rectangle GetRect()
+        {
+            rectCollision.X = (int)this.position.X;
+            rectCollision.Y = (int)this.position.Y;
+            rectCollision.Width = (int)this.sprite.Width;
+            rectCollision.Height = (int)this.sprite.Height;
+            return rectCollision;
+        }
     }
 }
