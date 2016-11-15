@@ -13,7 +13,7 @@ namespace Projet_01
         public bool isAlive;
         public Texture2D sprite;
         public Vector2 position;
-        public Vector2 velocity;
+        public int velocity;
         public Rectangle rectCollision = new Rectangle();
         public Rectangle GetRect()
         {

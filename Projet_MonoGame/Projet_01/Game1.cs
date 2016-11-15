@@ -47,7 +47,36 @@ namespace Projet_01
             this.graphics.PreferredBackBufferHeight = graphics.GraphicsDevice.DisplayMode.Height;
             this.graphics.ToggleFullScreen();
             fenetre = new Rectangle(0, 0, graphics.GraphicsDevice.DisplayMode.Width, graphics.GraphicsDevice.DisplayMode.Height);
-
+            fond = new GameObject();
+            fond.sprite = Content.Load<Texture2D>("fPaille.png");
+            fond.position.X = 0;
+            fond.position.Y = 0;
+            fences = new GameObject();
+            fences.isAlive = false;
+            fences.sprite = Content.Load<Texture2D>("fFences.png");
+            fences.position.X = 0;
+            fences.position.Y = 0;
+            poule = new GameObject();
+            poule.isAlive = true;
+            poule.sprite = Content.Load<Texture2D>("sPoule.png");
+            poule.position.X = fenetre.X;
+            poule.position.Y = fenetre.Height / 2 - poule.sprite.Height / 2;
+            poule.velocity = 8;
+            poule.rectCollision = poule.GetRect();
+            oeuf = new GameObject();
+            araignee = new GameObject();
+            araignee.isAlive = true;
+            araignee.sprite = Content.Load<Texture2D>("sAraignee.png");
+            araignee.position.X = fenetre.Width / 2 - araignee.sprite.Width / 2;
+            araignee.position.Y = fenetre.Y + 128;
+            araignee.velocity = 1;
+            fil = new GameObject();
+            fil.velocity = 5;
+            fil.isAlive = true;
+            fil.sprite = Content.Load<Texture2D>("sFil.png");
+            fil.position.X = araignee.position.X + araignee.sprite.Width / 2 - fil.sprite.Width;
+            fil.position.Y = araignee.sprite.Height / 2;
+            fil.rectCollision = fil.GetRect();
             base.Initialize();
         }
 
@@ -59,29 +88,7 @@ namespace Projet_01
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
-            fond = new GameObject();
-            fond.sprite = Content.Load<Texture2D>("fPaille.png");
-            fond.position.X = 0;
-            fond.position.Y = 0;
-            fences = new GameObject();
-            fences.sprite = Content.Load<Texture2D>("fFences.png");
-            fences.position.X = 0;
-            fences.position.Y = 0;
-            poule = new GameObject();
-            poule.isAlive = true;
-            poule.sprite = Content.Load<Texture2D>("sPoule.png");
-            poule.position.X = fenetre.X;
-            poule.position.Y = fenetre.Height / 2 - poule.sprite.Height / 2;
-            poule.velocity.X = 4;
-            poule.velocity.Y = 4;
-            oeuf = new GameObject();
-            araignee = new GameObject();
-            araignee.isAlive = true;
-            araignee.sprite = Content.Load<Texture2D>("sAraignee.png");
-            araignee.position.X = fenetre.Width / 2 - araignee.sprite.Width / 2;
-            araignee.position.Y = fenetre.Y + 128;
-            araignee.velocity.X = 5;
-            fil = new GameObject();
+            
             //Song son = Content.Load<Song>("Sounds\\Windy.wav");
             //MediaPlayer.Play(son);
 
@@ -108,24 +115,24 @@ namespace Projet_01
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+            if (Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
             if (Keyboard.GetState().IsKeyDown(Keys.W))
             {
-                poule.position.Y -= poule.velocity.Y;
+                poule.position.Y -= poule.velocity;
             }
             if (Keyboard.GetState().IsKeyDown(Keys.S))
             {
-                poule.position.Y += poule.velocity.Y;
+                poule.position.Y += poule.velocity;
             }
             if (Keyboard.GetState().IsKeyDown(Keys.A))
             {
-                poule.position.X -= poule.velocity.X;
+                poule.position.X -= poule.velocity;
             }
             if (Keyboard.GetState().IsKeyDown(Keys.D))
             {
-                poule.position.X += poule.velocity.X;
+                poule.position.X += poule.velocity;
             }
             if (Keyboard.GetState().IsKeyDown(Keys.P))
                 sortir = true;
@@ -186,20 +193,20 @@ namespace Projet_01
         }
         public void updateAraignee()
         {
-            araignee.position.X -= araignee.velocity.X;
+            araignee.position.X -= araignee.velocity;
 
             if (sortir == true)
             {
                 if (araignee.position.X < fenetre.X || araignee.position.X + araignee.sprite.Width > fenetre.Width)
                 {
-                    araignee.velocity.X = araignee.velocity.X * -1;
+                    araignee.velocity = araignee.velocity * -1;
                 }
             }
             else
             {
                 if (araignee.position.X < fenetre.X + 50 || araignee.position.X + araignee.sprite.Width > fenetre.Width - 50)
                 {
-                    araignee.velocity.X = araignee.velocity.X * -1;
+                    araignee.velocity = araignee.velocity * -1;
                 }
                 if (araignee.position.X < fenetre.X + 50)
                 {
@@ -216,15 +223,28 @@ namespace Projet_01
             if (sortir == false)
             {
                 fences.isAlive = true;
+                fences.sprite = Content.Load<Texture2D>("fFences.png");
             }
             else
             {
                 fences.isAlive = false;
             }
+
         }
         public void updateFil()
         {
-
+            if (fil.isAlive == true)
+            {
+                fil.position.Y += fil.velocity;
+                fil.sprite = Content.Load<Texture2D>("sFil.png");
+            }
+            if (fil.position.Y > fenetre.Height)
+            {
+                fil.isAlive = false;
+                fil.position.X = araignee.position.X + araignee.sprite.Width / 2 - fil.sprite.Width;
+                fil.position.Y = araignee.sprite.Height;
+                fil.isAlive = true;
+            }
         }
         public void updateOeuf()
         {
@@ -239,11 +259,9 @@ namespace Projet_01
             GraphicsDevice.Clear(Color.CornflowerBlue);
             spriteBatch.Begin();
             spriteBatch.Draw(fond.sprite, fond.position, Color.LightGreen);
-            if (fences.isAlive == true)
-            {
-                spriteBatch.Draw(fences.sprite, fences.position, Color.White);
-            }
+            spriteBatch.Draw(fences.sprite, fences.position, Color.White);
             spriteBatch.Draw(poule.sprite, poule.position, Color.White);
+            spriteBatch.Draw(fil.sprite, fil.position, Color.White);
             spriteBatch.Draw(araignee.sprite, araignee.position, Color.White);
 
 
