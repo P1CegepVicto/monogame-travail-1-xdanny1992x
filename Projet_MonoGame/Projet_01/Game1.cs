@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Media;
 using Projet_01;
 
 namespace Projet_01
+    //version avec changements, pour refaire fonctionner mon github
 {
     /// <summary>
     /// This is the main type for your game.
@@ -91,10 +92,6 @@ namespace Projet_01
             
             //Song son = Content.Load<Song>("Sounds\\Windy.wav");
             //MediaPlayer.Play(son);
-
-
-
-
 
             // TODO: use this.Content to load your game content here
         }
