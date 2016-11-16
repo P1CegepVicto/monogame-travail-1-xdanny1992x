@@ -25,8 +25,7 @@ namespace Projet_01
         int xWindow = 0;
         int yWindow = 0;
         public bool sortir = true;
-        //SoundEffect son;
-        //SoundEffectInstance vent;
+
 
         public Game1()
         {
@@ -63,21 +62,21 @@ namespace Projet_01
             poule.position.X = fenetre.X;
             poule.position.Y = fenetre.Height / 2 - poule.sprite.Height / 2;
             poule.velocity = 8;
-            poule.rectCollision = poule.GetRect();
+            poule.vie = 10;
             oeuf = new GameObject();
             araignee = new GameObject();
             araignee.isAlive = true;
             araignee.sprite = Content.Load<Texture2D>("sAraignee.png");
             araignee.position.X = fenetre.Width / 2 - araignee.sprite.Width / 2;
             araignee.position.Y = fenetre.Y + 128;
-            araignee.velocity = 1;
+            araignee.velocity = 2;
+            araignee.vie = 10;
             fil = new GameObject();
-            fil.velocity = 5;
+            fil.velocity = 10;
             fil.isAlive = true;
             fil.sprite = Content.Load<Texture2D>("sFil.png");
             fil.position.X = araignee.position.X + araignee.sprite.Width / 2 - fil.sprite.Width;
             fil.position.Y = araignee.sprite.Height / 2;
-            fil.rectCollision = fil.GetRect();
             base.Initialize();
         }
 
@@ -89,9 +88,7 @@ namespace Projet_01
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
-            
-            //Song son = Content.Load<Song>("Sounds\\Windy.wav");
-            //MediaPlayer.Play(son);
+
 
             // TODO: use this.Content to load your game content here
         }
@@ -187,6 +184,10 @@ namespace Projet_01
                     poule.position.Y = fenetre.Height - (20 + poule.sprite.Height);
                 }
             }
+            if (poule.vie <=0)
+            {
+                poule.isAlive = false;
+            }
         }
         public void updateAraignee()
         {
@@ -226,22 +227,34 @@ namespace Projet_01
             {
                 fences.isAlive = false;
             }
-
         }
         public void updateFil()
         {
+            fil.tempsMort--;
+
             if (fil.isAlive == true)
             {
                 fil.position.Y += fil.velocity;
-                fil.sprite = Content.Load<Texture2D>("sFil.png");
             }
-            if (fil.position.Y > fenetre.Height)
+            if (fil.position.Y > fenetre.Height || fil.isAlive ==false)
             {
-                fil.isAlive = false;
                 fil.position.X = araignee.position.X + araignee.sprite.Width / 2 - fil.sprite.Width;
                 fil.position.Y = araignee.sprite.Height;
                 fil.isAlive = true;
             }
+            if (fil.isAlive)
+            {
+                if (fil.GetRect().Intersects(poule.GetRect()))
+                {
+                    fil.isAlive = false;
+                    poule.vie--;
+                    fil.tempsMort = 180;
+                }
+            }
+            if (fil.tempsMort<=0)
+                {
+                fil.isAlive = true;
+                }
         }
         public void updateOeuf()
         {
@@ -255,12 +268,24 @@ namespace Projet_01
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
             spriteBatch.Begin();
-            spriteBatch.Draw(fond.sprite, fond.position, Color.LightGreen);
-            spriteBatch.Draw(fences.sprite, fences.position, Color.White);
-            spriteBatch.Draw(poule.sprite, poule.position, Color.White);
-            spriteBatch.Draw(fil.sprite, fil.position, Color.White);
-            spriteBatch.Draw(araignee.sprite, araignee.position, Color.White);
+            spriteBatch.Draw(fond.sprite, fond.position, Color.Teal);
+            if (fences.isAlive == true)
+            {
+                spriteBatch.Draw(fences.sprite, fences.position, Color.White);
+            }
+            if (poule.isAlive == true)
+            {
+                spriteBatch.Draw(poule.sprite, poule.position, Color.White);
+            }
+            if (fil.isAlive ==true)
+            {
+                spriteBatch.Draw(fil.sprite, fil.position, Color.White);
+            }
+            if (araignee.isAlive ==true)
+            {
+                spriteBatch.Draw(araignee.sprite, araignee.position, Color.White);
 
+            }
 
 
             spriteBatch.End();

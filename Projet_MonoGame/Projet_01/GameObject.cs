@@ -11,9 +11,11 @@ namespace Projet_01
     class GameObject
     {
         public bool isAlive;
+        public int vie;
         public Texture2D sprite;
         public Vector2 position;
         public int velocity;
+        public int tempsMort;
         public Rectangle rectCollision = new Rectangle();
         public Rectangle GetRect()
         {
