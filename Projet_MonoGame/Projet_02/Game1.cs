@@ -76,8 +76,10 @@ namespace Projet_02
             //Cochon, étant le personnage principale. Peut s'orienter, avancer, reculer, et cracher des pommes. Il possède initialement 10 de vie.
             cochon = new GameObject();
             cochon.sprite = Content.Load<Texture2D>("sCochon.png");
-            cochon.position.X = fenetre.Width / 2;
-            cochon.position.Y = fenetre.Height / 2;
+            //cochon.position.X = fenetre.Width / 2;
+            //cochon.position.Y = fenetre.Height / 2;
+            cochon.position = new Vector2(fenetre.Width / 2, fenetre.Height / 2);
+
             cochon.origin.X = cochon.GetRect().Width / 2;
             cochon.origin.Y = cochon.GetRect().Height / 2;
             fil = new GameObject();
