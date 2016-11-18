@@ -227,6 +227,7 @@ namespace Projet_01
             {
                 fences.isAlive = false;
             }
+
         }
         public void updateFil()
         {
