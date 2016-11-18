@@ -13,12 +13,12 @@ namespace Projet_02
         public bool isAlive;
         public Texture2D sprite;
         public Vector2 position;
-        public int vspeed;
-        public int hspeed;
+        public Vector2 velocity;
         public int health;
         public int tempsMort;
         public Vector2 origin;
         public float rotation;
+        public float tanVelocity =5f;
         public Rectangle rectCollision = new Rectangle();
         public Rectangle GetRect()
         {

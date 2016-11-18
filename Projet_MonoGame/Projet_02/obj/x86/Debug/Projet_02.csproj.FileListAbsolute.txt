@@ -27,3 +27,4 @@ C:\Users\Danny\Documents\GitHub\monogame-travail-1-xdanny1992x\Projet_MonoGame\P
 C:\Users\Danny\Documents\GitHub\monogame-travail-1-xdanny1992x\Projet_MonoGame\Projet_02\bin\Windows\x86\Debug\Content\sBottom.png
 C:\Users\Danny\Documents\GitHub\monogame-travail-1-xdanny1992x\Projet_MonoGame\Projet_02\bin\Windows\x86\Debug\Content\sTop.png
 C:\Users\Danny\Documents\GitHub\monogame-travail-1-xdanny1992x\Projet_MonoGame\Projet_02\bin\Windows\x86\Debug\Content\sCochon.png
+C:\Users\Danny\Documents\GitHub\monogame-travail-1-xdanny1992x\Projet_MonoGame\Projet_02\bin\Windows\x86\Debug\Content\sFil.png

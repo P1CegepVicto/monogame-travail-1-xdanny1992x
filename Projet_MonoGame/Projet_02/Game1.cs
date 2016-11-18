@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
 
 namespace Projet_02
 {
@@ -13,6 +14,7 @@ namespace Projet_02
         SpriteBatch spriteBatch;
         GameObject cochon;
         GameObject tortue;
+        GameObject fil;
         GameObject[] pipeB = new GameObject[2];
         GameObject[] pipeT = new GameObject[2];
         GameObject wallpaper;
@@ -78,6 +80,12 @@ namespace Projet_02
             cochon.position.Y = fenetre.Height / 2;
             cochon.origin.X = cochon.GetRect().Width / 2;
             cochon.origin.Y = cochon.GetRect().Height / 2;
+            fil = new GameObject();
+            fil.sprite = Content.Load<Texture2D>("sFil.png");
+            fil.position = cochon.position;
+            fil.velocity.X = 3;
+
+
             //////////////////////////////////////////////////////////////////////
             //Ma ligne de code qui ne fonctionne pas
             //cochon.origin = (cochon.GetRect().Width/2, cochon.GetRect().Height/2)
@@ -116,13 +124,49 @@ namespace Projet_02
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
             if (Keyboard.GetState().IsKeyDown(Keys.A))
-                cochon.rotation -= 0.1f;
+                cochon.rotation -= 0.05f;
             if (Keyboard.GetState().IsKeyDown(Keys.D))
-                cochon.rotation += 0.1f;
+                cochon.rotation += 0.05f;
+            if (Keyboard.GetState().IsKeyDown(Keys.W))
+            {
+                cochon.velocity.X = (float)Math.Cos(cochon.rotation)*cochon.tanVelocity;
+                cochon.velocity.Y = (float)Math.Sin(cochon.rotation) * cochon.tanVelocity;
+            }
+            if (Keyboard.GetState().IsKeyDown(Keys.S))
+            {
+                cochon.velocity.X = -((float)Math.Cos(cochon.rotation) * cochon.tanVelocity)/1.5f;
+                cochon.velocity.Y = -((float)Math.Sin(cochon.rotation) * cochon.tanVelocity)/1.5f;
+            }
+            if (!Keyboard.GetState().IsKeyDown(Keys.S) && !Keyboard.GetState().IsKeyDown(Keys.W))
+            {
+                cochon.velocity.X = cochon.velocity.X/1.5f;
+                cochon.velocity.Y = cochon.velocity.Y /1.5f;
+            }
+
+            updateCochon();
+            updateFil();
 
             // TODO: Add your update logic here
 
             base.Update(gameTime);
+
+        }
+
+        public void updateCochon()
+        {
+            cochon.position = cochon.velocity + cochon.position;
+        }
+        public void updateFil()
+        {
+            fil.velocity.X = (float)Math.Cos(fil.rotation) * fil.tanVelocity;
+            fil.velocity.Y = (float)Math.Sin(fil.rotation) * fil.tanVelocity;
+
+            fil.position = fil.velocity+fil.position;
+
+            if (fil.position.X > fenetre.Width)
+            {
+                fil.position = cochon.position;
+            }
         }
 
         /// <summary>
@@ -134,21 +178,28 @@ namespace Projet_02
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             spriteBatch.Begin();
+            //Affichage du fond d'écran
             spriteBatch.Draw(wallpaper.sprite, wallpaper.position, Color.White);
+            //Affichage du bas du tuyeau
             for (int i = 0; i <= 1; i++)
             {
                 if (pipeB[i].position.X < (fenetre.Width / 2))
-                { 
-                spriteBatch.Draw(pipeB[i].sprite, pipeB[i].position, null, Color.White, 0, Vector2.Zero, 1, SpriteEffects.FlipHorizontally, 0);
-                    spriteBatch.Draw(pipeT[i].sprite, pipeT[i].position, null, Color.White, 0, Vector2.Zero, 1, SpriteEffects.FlipHorizontally, 0);
-                }
+                    spriteBatch.Draw(pipeB[i].sprite, pipeB[i].position, null, Color.White, 0, Vector2.Zero, 1, SpriteEffects.FlipHorizontally, 0);
                 else
-                {
                     spriteBatch.Draw(pipeB[i].sprite, pipeB[i].position, Color.White);
-                    spriteBatch.Draw(pipeT[i].sprite, pipeT[i].position, Color.White);
-                }
             }
-            spriteBatch.Draw(cochon.sprite, cochon.position,null, Color.White, cochon.rotation, cochon.origin, 1f, SpriteEffects.None, 0);
+            //Affichage du projectil
+            spriteBatch.Draw(fil.sprite, fil.position, Color.White);
+            //Affichage du cochon
+            spriteBatch.Draw(cochon.sprite, cochon.position, null, Color.White, cochon.rotation, cochon.origin, 1f, SpriteEffects.None, 0);
+            //Affichage du dessus du tuyau
+            for (int i = 0; i <= 1; i++)
+            {
+                if (pipeB[i].position.X < (fenetre.Width / 2))
+                    spriteBatch.Draw(pipeT[i].sprite, pipeT[i].position, null, Color.White, 0, Vector2.Zero, 1, SpriteEffects.FlipHorizontally, 0);
+                else
+                    spriteBatch.Draw(pipeT[i].sprite, pipeT[i].position, Color.White);
+            }
 
             spriteBatch.End();
 
