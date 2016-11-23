@@ -13,11 +13,13 @@ namespace Projet_02
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         GameObject cochon;
-        GameObject tortue;
-        GameObject fil;
+        GameObject[] tortue = new GameObject[6];
+        GameObject[] pomme = new GameObject[10];
         GameObject[] pipeB = new GameObject[2];
         GameObject[] pipeT = new GameObject[2];
         GameObject wallpaper;
+        KeyboardState previousKey;
+        Random dePosition = new Random();
 
         Rectangle fenetre;
         public bool sortir = true;
@@ -41,29 +43,29 @@ namespace Projet_02
             this.graphics.PreferredBackBufferHeight = graphics.GraphicsDevice.DisplayMode.Height;
             this.graphics.ToggleFullScreen();
             fenetre = new Rectangle(0, 0, graphics.GraphicsDevice.DisplayMode.Width, graphics.GraphicsDevice.DisplayMode.Height);
-            
+
             //Wallpaper, étant l'image de fond d'écran.
             wallpaper = new GameObject();
             wallpaper.sprite = Content.Load<Texture2D>("Wallpaper.png");
             wallpaper.position.X = fenetre.X;
             wallpaper.position.Y = fenetre.Y;
-            
+
             //PipeB, étant le dessous des tuyaux. 
-            for (int i = 0; i <=1; i++)
+            for (int i = 0; i <= 1; i++)
             {
                 pipeB[i] = new GameObject();
                 pipeB[i].sprite = Content.Load<Texture2D>("sBottom.png");
                 pipeB[i].position.Y = (fenetre.Height / 2) - (pipeB[i].sprite.Height / 2);
-            if (i == 0)
+                if (i == 0)
                 {
-                    pipeB[i].position.X = fenetre.X-86;
+                    pipeB[i].position.X = fenetre.X - 86;
                 }
-                else if(i ==1)
+                else if (i == 1)
                 {
-                    pipeB[i].position.X = fenetre.Width - pipeB[i].sprite.Width + 86; 
+                    pipeB[i].position.X = fenetre.Width - pipeB[i].sprite.Width + 86;
                 }
             }
-            
+
             //PipeT, étant le dessus des tuyaux, positionné pile au dessus des PipeB.
             for (int i = 0; i <= 1; i++)
             {
@@ -82,16 +84,35 @@ namespace Projet_02
 
             cochon.origin.X = cochon.GetRect().Width / 2;
             cochon.origin.Y = cochon.GetRect().Height / 2;
-            fil = new GameObject();
-            fil.sprite = Content.Load<Texture2D>("sFil.png");
-            fil.position = cochon.position;
-            fil.velocity.X = 3;
+            cochon.lives = 10;
+
+            //Pomme, étant les projectiles de Méchoui le Cochon.
+            for (int i = 0; i < pomme.Length; i++)
+            {
+                pomme[i] = new GameObject();
+                pomme[i].sprite = Content.Load<Texture2D>("sFil.png");
+                pomme[i].isAlive = false;
+                pomme[i].origin.X = pomme[i].GetRect().Width / 2 - 60;
+                pomme[i].origin.Y = pomme[i].GetRect().Height / 2;
+                pomme[i].position.X = -100;
+                pomme[i].position.Y = -100;
+            }
+
+            //Tortues bleu, Leonardo, elle "spawn" du tuyau gauche ou droit au hasard, peut être présente 6 fois dans l'écran en même temps.
+            //Suit Méchoui comme un missile tête chercheuse. 
+            for (int i = 0; i < tortue.Length; i++)
+            {
+                tortue[i] = new GameObject();
+                tortue[i].sprite = Content.Load<Texture2D>("sCochon.png");
+                tortue[i].position.X = dePosition.Next(fenetre.X, fenetre.Width);
+                tortue[i].position.Y = dePosition.Next(fenetre.Y, fenetre.Height);
+                tortue[i].origin.X = tortue[i].GetRect().Width / 2;
+                tortue[i].origin.Y = tortue[i].GetRect().Height / 2;
+                tortue[i].lives = 1;
+                tortue[i].speed = 1;
+            }
 
 
-            //////////////////////////////////////////////////////////////////////
-            //Ma ligne de code qui ne fonctionne pas
-            //cochon.origin = (cochon.GetRect().Width/2, cochon.GetRect().Height/2)
-            //////////////////////////////////////////////////////////////////////
             base.Initialize();
         }
 
@@ -131,25 +152,32 @@ namespace Projet_02
                 cochon.rotation += 0.05f;
             if (Keyboard.GetState().IsKeyDown(Keys.W))
             {
-                cochon.velocity.X = (float)Math.Cos(cochon.rotation)*cochon.tanVelocity;
+                cochon.velocity.X = (float)Math.Cos(cochon.rotation) * cochon.tanVelocity;
                 cochon.velocity.Y = (float)Math.Sin(cochon.rotation) * cochon.tanVelocity;
             }
             if (Keyboard.GetState().IsKeyDown(Keys.S))
             {
-                cochon.velocity.X = -((float)Math.Cos(cochon.rotation) * cochon.tanVelocity)/1.5f;
-                cochon.velocity.Y = -((float)Math.Sin(cochon.rotation) * cochon.tanVelocity)/1.5f;
+                cochon.velocity.X = -((float)Math.Cos(cochon.rotation) * cochon.tanVelocity) / 1.5f;
+                cochon.velocity.Y = -((float)Math.Sin(cochon.rotation) * cochon.tanVelocity) / 1.5f;
             }
             if (!Keyboard.GetState().IsKeyDown(Keys.S) && !Keyboard.GetState().IsKeyDown(Keys.W))
             {
-                cochon.velocity.X = cochon.velocity.X/1.5f;
-                cochon.velocity.Y = cochon.velocity.Y /1.5f;
+                cochon.velocity.X = cochon.velocity.X / 1.5f;
+                cochon.velocity.Y = cochon.velocity.Y / 1.5f;
             }
+            if (Keyboard.GetState().IsKeyUp(Keys.Space) && previousKey.IsKeyDown(Keys.Space))
+                for (int i = 0; i < pomme.Length; i++)
+                {
+                    pomme[i].isAlive = true;
+                }
 
             updateCochon();
-            updateFil();
+            updatePomme();
+            updateTortue();
 
             // TODO: Add your update logic here
 
+            previousKey = Keyboard.GetState();
             base.Update(gameTime);
 
         }
@@ -158,18 +186,45 @@ namespace Projet_02
         {
             cochon.position = cochon.velocity + cochon.position;
         }
-        public void updateFil()
+        public void updatePomme()
         {
-            fil.velocity.X = (float)Math.Cos(fil.rotation) * fil.tanVelocity;
-            fil.velocity.Y = (float)Math.Sin(fil.rotation) * fil.tanVelocity;
-
-            fil.position = fil.velocity+fil.position;
-
-            if (fil.position.X > fenetre.Width)
+            for (int i = 0; i < pomme.Length; i++)
             {
-                fil.position = cochon.position;
+                if (pomme[i].isAlive == true)
+                {
+                    pomme[i].position.X = cochon.position.X;
+                    pomme[i].position.Y = cochon.position.Y;
+                    pomme[i].rotation = cochon.rotation;
+                    pomme[i].velocity.X = (float)Math.Cos(pomme[i].rotation) * 20f;
+                    pomme[i].velocity.Y = (float)Math.Sin(pomme[i].rotation) * 20f;
+                    pomme[i].isAlive = false;
+                }
+                pomme[i].position += pomme[i].velocity;
             }
         }
+        public void updateTortue()
+        {
+            for(int i =0; i<tortue.Length;i++)
+            {
+                if (tortue[i].position.X>cochon.position.X)
+                {
+                    tortue[i].position.X -= tortue[i].speed;
+                }
+                else
+                {
+                    tortue[i].position.X += tortue[i].speed;
+                }
+                if (tortue[i].position.Y > cochon.position.Y)
+                {
+                    tortue[i].position.Y -= tortue[i].speed;
+                }
+                else
+                {
+                    tortue[i].position.Y += tortue[i].speed;
+                }
+            }
+}
+
 
         /// <summary>
         /// This is called when the game should draw itself.
@@ -191,9 +246,18 @@ namespace Projet_02
                     spriteBatch.Draw(pipeB[i].sprite, pipeB[i].position, Color.White);
             }
             //Affichage du projectil
-            spriteBatch.Draw(fil.sprite, fil.position, Color.White);
+            for (int i = 0; i < pomme.Length; i++)
+                spriteBatch.Draw(pomme[i].sprite, pomme[i].position, null, Color.White, cochon.rotation, pomme[i].origin, 1f, SpriteEffects.None, 0);
+
             //Affichage du cochon
             spriteBatch.Draw(cochon.sprite, cochon.position, null, Color.White, cochon.rotation, cochon.origin, 1f, SpriteEffects.None, 0);
+
+            //Affichage des tortues Leonardo
+            for (int i = 0; i < tortue.Length; i++)
+            {
+                spriteBatch.Draw(tortue[i].sprite, tortue[i].position);
+            }
+
             //Affichage du dessus du tuyau
             for (int i = 0; i <= 1; i++)
             {

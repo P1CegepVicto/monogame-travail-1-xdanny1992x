@@ -14,7 +14,8 @@ namespace Projet_02
         public Texture2D sprite;
         public Vector2 position;
         public Vector2 velocity;
-        public int health;
+        public int lives;
+        public int speed;
         public int tempsMort;
         public Vector2 origin;
         public float rotation;
