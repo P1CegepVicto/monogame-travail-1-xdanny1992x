@@ -13,3 +13,21 @@
 
 #---------------------------------- Content ---------------------------------#
 
+#begin Sounds/sewer.wav
+/importer:WavImporter
+/processor:SongProcessor
+/processorParam:Quality=Low
+/build:Sounds/sewer.wav
+
+#begin Sounds/pig.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Low
+/build:Sounds/pig.wav
+
+#begin Sounds/hit.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Low
+/build:Sounds/hit.wav
+

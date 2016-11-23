@@ -28,3 +28,12 @@ C:\Users\Danny\Documents\GitHub\monogame-travail-1-xdanny1992x\Projet_MonoGame\P
 C:\Users\Danny\Documents\GitHub\monogame-travail-1-xdanny1992x\Projet_MonoGame\Projet_02\bin\Windows\x86\Debug\Content\sTop.png
 C:\Users\Danny\Documents\GitHub\monogame-travail-1-xdanny1992x\Projet_MonoGame\Projet_02\bin\Windows\x86\Debug\Content\sCochon.png
 C:\Users\Danny\Documents\GitHub\monogame-travail-1-xdanny1992x\Projet_MonoGame\Projet_02\bin\Windows\x86\Debug\Content\sFil.png
+C:\Users\Danny\Documents\GitHub\monogame-travail-1-xdanny1992x\Projet_MonoGame\Projet_02\bin\Windows\x86\Debug\Content\sPomme.png
+C:\Users\Danny\Documents\GitHub\monogame-travail-1-xdanny1992x\Projet_MonoGame\Projet_02\bin\Windows\x86\Debug\Content\sTortue.png
+C:\Users\Danny\Documents\GitHub\monogame-travail-1-xdanny1992x\Projet_MonoGame\Projet_02\bin\Windows\x86\Debug\Content\sewer.wav
+C:\Users\Danny\Documents\GitHub\monogame-travail-1-xdanny1992x\Projet_MonoGame\Projet_02\bin\Windows\x86\Debug\Content\Sounds\sewer.wma
+C:\Users\Danny\Documents\GitHub\monogame-travail-1-xdanny1992x\Projet_MonoGame\Projet_02\bin\Windows\x86\Debug\Content\Sounds\sewer.xnb
+C:\Users\Danny\Documents\GitHub\monogame-travail-1-xdanny1992x\Projet_MonoGame\Projet_02\bin\Windows\x86\Debug\Content\pig.wav
+C:\Users\Danny\Documents\GitHub\monogame-travail-1-xdanny1992x\Projet_MonoGame\Projet_02\bin\Windows\x86\Debug\Content\Sounds\pig.xnb
+C:\Users\Danny\Documents\GitHub\monogame-travail-1-xdanny1992x\Projet_MonoGame\Projet_02\bin\Windows\x86\Debug\Content\hit.wav
+C:\Users\Danny\Documents\GitHub\monogame-travail-1-xdanny1992x\Projet_MonoGame\Projet_02\bin\Windows\x86\Debug\Content\Sounds\hit.xnb

@@ -1,7 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Audio;
 using System;
+using Microsoft.Xna.Framework.Media;
 
 namespace Projet_02
 {
@@ -10,6 +12,10 @@ namespace Projet_02
     /// </summary>
     public class Game1 : Game
     {
+        SoundEffect son;
+        SoundEffect son2;
+        SoundEffectInstance pig;
+        SoundEffectInstance hit;
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         GameObject cochon;
@@ -90,7 +96,7 @@ namespace Projet_02
             for (int i = 0; i < pomme.Length; i++)
             {
                 pomme[i] = new GameObject();
-                pomme[i].sprite = Content.Load<Texture2D>("sFil.png");
+                pomme[i].sprite = Content.Load<Texture2D>("sPomme.png");
                 pomme[i].isAlive = false;
                 pomme[i].origin.X = pomme[i].GetRect().Width / 2 - 60;
                 pomme[i].origin.Y = pomme[i].GetRect().Height / 2;
@@ -103,7 +109,7 @@ namespace Projet_02
             for (int i = 0; i < tortue.Length; i++)
             {
                 tortue[i] = new GameObject();
-                tortue[i].sprite = Content.Load<Texture2D>("sCochon.png");
+                tortue[i].sprite = Content.Load<Texture2D>("sTortue.png");
                 tortue[i].position.X = dePosition.Next(fenetre.X, fenetre.Width);
                 tortue[i].position.Y = dePosition.Next(fenetre.Y, fenetre.Height);
                 tortue[i].origin.X = tortue[i].GetRect().Width / 2;
@@ -126,6 +132,16 @@ namespace Projet_02
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
+            Song song = Content.Load<Song>("Sounds\\sewer");
+            MediaPlayer.Play(song);
+            son = Content.Load<SoundEffect>("Sounds\\pig");
+            son2 = Content.Load<SoundEffect>("Sounds\\hit");
+            hit = son2.CreateInstance();
+            pig = son.CreateInstance();
+
+
+
+
         }
 
         /// <summary>
@@ -169,6 +185,7 @@ namespace Projet_02
                 for (int i = 0; i < pomme.Length; i++)
                 {
                     pomme[i].isAlive = true;
+                    pig.Play();
                 }
 
             updateCochon();
@@ -195,35 +212,54 @@ namespace Projet_02
                     pomme[i].position.X = cochon.position.X;
                     pomme[i].position.Y = cochon.position.Y;
                     pomme[i].rotation = cochon.rotation;
-                    pomme[i].velocity.X = (float)Math.Cos(pomme[i].rotation) * 20f;
-                    pomme[i].velocity.Y = (float)Math.Sin(pomme[i].rotation) * 20f;
+                    pomme[i].velocity.X = (float)Math.Cos(pomme[i].rotation) * 10f;
+                    pomme[i].velocity.Y = (float)Math.Sin(pomme[i].rotation) * 10f;
                     pomme[i].isAlive = false;
                 }
                 pomme[i].position += pomme[i].velocity;
+
+                for (int j = 0; j < tortue.Length; j ++)
+                {
+                    if (pomme[i].GetRect().Intersects(tortue[j].GetRect()))
+                    {
+                        hit.Play();
+                    }
+
+                }
             }
         }
         public void updateTortue()
         {
-            for(int i =0; i<tortue.Length;i++)
+            for (int i = 0; i < tortue.Length; i++)
             {
-                if (tortue[i].position.X>cochon.position.X)
+                for (int j = 0; j < tortue.Length; j++)
                 {
-                    tortue[i].position.X -= tortue[i].speed;
-                }
-                else
-                {
-                    tortue[i].position.X += tortue[i].speed;
-                }
-                if (tortue[i].position.Y > cochon.position.Y)
-                {
-                    tortue[i].position.Y -= tortue[i].speed;
-                }
-                else
-                {
-                    tortue[i].position.Y += tortue[i].speed;
+                    if (tortue[i].position.X > cochon.position.X)
+                    {
+                        if (tortue[i].GetRect().Intersects(tortue[j].GetRect()))
+                            tortue[i].position.X -= tortue[i].speed;
+                        
+                    }
+                    else
+                    {
+                        if (tortue[i].GetRect().Intersects(tortue[j].GetRect()))
+                            tortue[i].position.X += tortue[i].speed;
+                       
+                    }
+                    if (tortue[i].position.Y > cochon.position.Y)
+                    {
+                        if (tortue[i].GetRect().Intersects(tortue[j].GetRect()))
+                            tortue[i].position.Y -= tortue[i].speed;
+                    }
+                    else
+                    {
+                        if (tortue[i].GetRect().Intersects(tortue[j].GetRect()))
+                            tortue[i].position.Y += tortue[i].speed;
+                        
+                    }
                 }
             }
-}
+        }
 
 
         /// <summary>
@@ -247,7 +283,7 @@ namespace Projet_02
             }
             //Affichage du projectil
             for (int i = 0; i < pomme.Length; i++)
-                spriteBatch.Draw(pomme[i].sprite, pomme[i].position, null, Color.White, cochon.rotation, pomme[i].origin, 1f, SpriteEffects.None, 0);
+                spriteBatch.Draw(pomme[i].sprite, pomme[i].position, null, Color.White, pomme[i].rotation, pomme[i].origin, 1f, SpriteEffects.None, 0);
 
             //Affichage du cochon
             spriteBatch.Draw(cochon.sprite, cochon.position, null, Color.White, cochon.rotation, cochon.origin, 1f, SpriteEffects.None, 0);
@@ -255,7 +291,7 @@ namespace Projet_02
             //Affichage des tortues Leonardo
             for (int i = 0; i < tortue.Length; i++)
             {
-                spriteBatch.Draw(tortue[i].sprite, tortue[i].position);
+                spriteBatch.Draw(tortue[i].sprite, tortue[i].position, null, Color.White, tortue[i].rotation, tortue[i].origin, 1f, SpriteEffects.None, 0);
             }
 
             //Affichage du dessus du tuyau
