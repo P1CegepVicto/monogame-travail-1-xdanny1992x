@@ -22,6 +22,8 @@ namespace Projet_02
         public Vector2 origin;
         public float rotation;
         public bool canBeHurt = true;
+        public bool isOnScreen = false;
+        public Vector2 posDepart;
         public float tanVelocity = 5f;
         public Rectangle rectCollision = new Rectangle();
         public Rectangle GetRect()

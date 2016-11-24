@@ -31,10 +31,12 @@ namespace Projet_02
         GameObject wallpaper;
         KeyboardState previousKey;
         int pommeRendu = 0;
+        int tortueRendu = 0;
         Random deDirection = new Random();
         float timeOfDeath = 0;
         string displayTimeOfDeath = "";
         SpriteFont font;
+        float creation = 0;
 
         Rectangle fenetre;
         public bool sortir = true;
@@ -123,8 +125,10 @@ namespace Projet_02
                 tortue[i].origin.Y = tortue[i].GetRect().Height / 2;
                 tortue[i].lives = 1;
                 tortue[i].speed = 0.8f;
-                tortue[i].isAlive = true;
-
+                tortue[i].isAlive = false;
+                tortue[i].isOnScreen = false;
+                tortue[i].position.X = -5000;
+                tortue[i].position.Y = -5000;
             }
 
             GameOver = new GameObject();
@@ -212,10 +216,30 @@ namespace Projet_02
             if (pommeRendu > pomme.Length - 1)
                 pommeRendu = 0;
 
-            timeOfDeath += (int)gameTime.ElapsedGameTime.TotalSeconds;
+            if (cochon.isAlive == true)
+                timeOfDeath += (float)gameTime.ElapsedGameTime.TotalSeconds;
+
             displayTimeOfDeath = Convert.ToString(timeOfDeath);
 
             cochon.timeSinceLast += (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            creation += (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+
+                if (creation > 6f)
+                {
+                    tortue[tortueRendu].isOnScreen = true;
+                    tortue[tortueRendu].isAlive = true;
+                    creation = 0;
+                    tortueRendu+=1;
+                }
+
+            if (tortueRendu > tortue.Length - 1)
+                tortueRendu = 0;
+
+            
+
+
 
             // Duration = hasard = temps de chacune des direction
             // timeSinceLast = calculé à partir de la dernière fois que l'on à changé de direction
@@ -245,7 +269,16 @@ namespace Projet_02
 
         public void updateCochon()
         {
-            if (cochon.timeSinceLast > 10)
+            if (cochon.position.X + cochon.sprite.Width / 2 > fenetre.Width)
+                cochon.position.X = fenetre.Width - cochon.sprite.Width / 2;
+            if (cochon.position.X - cochon.sprite.Width / 2 < fenetre.X)
+                cochon.position.X = fenetre.X + cochon.sprite.Width / 2;
+            if (cochon.position.Y + cochon.sprite.Height / 2 > fenetre.Height)
+                cochon.position.Y = fenetre.Height - cochon.sprite.Height / 2;
+            if (cochon.position.Y - cochon.sprite.Height / 2 < fenetre.Y)
+                cochon.position.Y = fenetre.Y + cochon.sprite.Height / 2;
+
+            if (cochon.timeSinceLast > 2)
                 cochon.canBeHurt = true;
 
             if (cochon.lives < 1)
@@ -269,7 +302,6 @@ namespace Projet_02
                     else
                         hurt.Play();
 
-
                 }
             }
         }
@@ -291,11 +323,10 @@ namespace Projet_02
 
                     for (int j = 0; j < tortue.Length; j++)
                     {
-                        if (pomme[i].GetRect().Intersects(tortue[j].GetRect())&&tortue[j].isAlive==true)
+                        if (pomme[i].GetRect().Intersects(tortue[j].GetRect()) && tortue[j].isAlive == true)
                         {
                             hit.Play();
                         }
-
                     }
                 }
             }
@@ -304,18 +335,41 @@ namespace Projet_02
         {
             for (int i = 0; i < tortue.Length; i++)
             {
-                if (tortue[i].isAlive==true)
+                int rndDepart = deDirection.Next(1, 3);
+
+                switch (rndDepart)
+                {
+                    case 1:
+                        tortue[i].posDepart.X = fenetre.X + 30;
+                        break;
+                    case 2:
+                        tortue[i].posDepart.X = fenetre.Width - 30;
+                        break;
+
+                }
+
+                if (tortue[i].isOnScreen == true)
+                {
+                    tortue[i].position.X = tortue[i].posDepart.X;
+                    tortue[i].position.Y = fenetre.Height / 2;
+                    tortue[i].isOnScreen = false;
+                }
+
+                
+                    
+
+                if (tortue[i].isAlive == true)
                 {
                     if (tortue[i].position.X + tortue[i].sprite.Width / 2 > fenetre.Width)
                         tortue[i].position.X = fenetre.Width - tortue[i].sprite.Width / 2;
                     if (tortue[i].position.X - tortue[i].sprite.Width / 2 < fenetre.X)
                         tortue[i].position.X = fenetre.X + tortue[i].sprite.Width / 2;
-                    if (tortue[i].position.Y + tortue[i].sprite.Height / 2 > fenetre.Height)
+                    if (tortue[i].position.Y + tortue[i].sprite.Height > fenetre.Height)
                         tortue[i].position.Y = fenetre.Height - tortue[i].sprite.Height / 2;
                     if (tortue[i].position.Y - tortue[i].sprite.Height / 2 < fenetre.Y)
                         tortue[i].position.Y = fenetre.Y + tortue[i].sprite.Height / 2;
                 }
-                
+
                 for (int j = 0; j < pomme.Length; j++)
                 {
                     if (tortue[i].GetRect().Intersects(pomme[j].GetRect()))
@@ -323,14 +377,14 @@ namespace Projet_02
                         tortue[i].lives -= 1;
                         pomme[j].position.X = -500;
                         pomme[j].position.Y = -500;
-                    }  
+                    }
                 }
                 if (tortue[i].lives < 1)
-                    {
-                        tortue[i].isAlive = false;
-                        tortue[i].position.X = -500;
-                        tortue[i].position.Y = -500;
-                    }
+                {
+                    tortue[i].isAlive = false;
+                    tortue[i].position.X = -500;
+                    tortue[i].position.Y = -500;
+                }
 
                 switch (tortue[i].randomDirection)
                 {
@@ -409,6 +463,12 @@ namespace Projet_02
                 else
                     spriteBatch.Draw(pipeB[i].sprite, pipeB[i].position, Color.White);
             }
+
+            //Affichage du projectile
+            for (int i = 0; i < pomme.Length; i++)
+                spriteBatch.Draw(pomme[i].sprite, pomme[i].position, null, Color.White, pomme[i].rotation, pomme[i].origin, 1f, SpriteEffects.None, 0);
+
+
             //Affichage du cochon
             if (cochon.isAlive == true)
             {
@@ -423,10 +483,7 @@ namespace Projet_02
                     spriteBatch.Draw(tortue[i].sprite, tortue[i].position, null, Color.White, tortue[i].rotation, tortue[i].origin, 1f, SpriteEffects.None, 0);
                 }
             }
-            //Affichage du projectile
-            for (int i = 0; i < pomme.Length; i++)
-                spriteBatch.Draw(pomme[i].sprite, pomme[i].position, null, Color.White, pomme[i].rotation, pomme[i].origin, 1f, SpriteEffects.None, 0);
-
+            
             //Affichage du dessus du tuyau
             for (int i = 0; i <= 1; i++)
             {
@@ -439,7 +496,7 @@ namespace Projet_02
             if (cochon.isAlive != true)
             {
                 spriteBatch.Draw(GameOver.sprite, GameOver.position);
-                spriteBatch.DrawString(font, displayTimeOfDeath , new Vector2(100, 100), Color.Black);
+                spriteBatch.DrawString(font, displayTimeOfDeath, new Vector2(100, 100), Color.Black);
             }
 
             spriteBatch.End();
