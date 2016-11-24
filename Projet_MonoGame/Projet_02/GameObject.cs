@@ -15,11 +15,14 @@ namespace Projet_02
         public Vector2 position;
         public Vector2 velocity;
         public int lives;
-        public int speed;
-        public int tempsMort;
+        public float speed;
+        public int randomDirection = 0;
+        public float timeSinceLast = 0f;
+        public float duration = 0;
         public Vector2 origin;
         public float rotation;
-        public float tanVelocity =5f;
+        public bool canBeHurt = true;
+        public float tanVelocity = 5f;
         public Rectangle rectCollision = new Rectangle();
         public Rectangle GetRect()
         {

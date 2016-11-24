@@ -31,3 +31,15 @@
 /processorParam:Quality=Low
 /build:Sounds/hit.wav
 
+#begin Sounds/hurt.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Low
+/build:Sounds/hurt.wav
+
+#begin Sounds/sHurt.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/sHurt.wav
+

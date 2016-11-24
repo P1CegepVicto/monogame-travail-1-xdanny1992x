@@ -37,3 +37,9 @@ C:\Users\Danny\Documents\GitHub\monogame-travail-1-xdanny1992x\Projet_MonoGame\P
 C:\Users\Danny\Documents\GitHub\monogame-travail-1-xdanny1992x\Projet_MonoGame\Projet_02\bin\Windows\x86\Debug\Content\Sounds\pig.xnb
 C:\Users\Danny\Documents\GitHub\monogame-travail-1-xdanny1992x\Projet_MonoGame\Projet_02\bin\Windows\x86\Debug\Content\hit.wav
 C:\Users\Danny\Documents\GitHub\monogame-travail-1-xdanny1992x\Projet_MonoGame\Projet_02\bin\Windows\x86\Debug\Content\Sounds\hit.xnb
+C:\Users\Danny\Documents\GitHub\monogame-travail-1-xdanny1992x\Projet_MonoGame\Projet_02\bin\Windows\x86\Debug\Content\hurt.wav
+C:\Users\Danny\Documents\GitHub\monogame-travail-1-xdanny1992x\Projet_MonoGame\Projet_02\bin\Windows\x86\Debug\Content\Sounds\hurt.xnb
+C:\Users\Danny\Documents\GitHub\monogame-travail-1-xdanny1992x\Projet_MonoGame\Projet_02\bin\Windows\x86\Debug\Content\sHurt.wav
+C:\Users\Danny\Documents\GitHub\monogame-travail-1-xdanny1992x\Projet_MonoGame\Projet_02\bin\Windows\x86\Debug\Content\Sounds\sHurt.xnb
+C:\Users\Danny\Documents\GitHub\monogame-travail-1-xdanny1992x\Projet_MonoGame\Projet_02\bin\Windows\x86\Debug\Content\GameOver.jpg
+C:\Users\Danny\Documents\GitHub\monogame-travail-1-xdanny1992x\Projet_MonoGame\Projet_02\bin\Windows\x86\Debug\Content\Font.xnb

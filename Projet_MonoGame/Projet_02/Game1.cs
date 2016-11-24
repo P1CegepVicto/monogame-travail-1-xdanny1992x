@@ -14,18 +14,27 @@ namespace Projet_02
     {
         SoundEffect son;
         SoundEffect son2;
+        SoundEffect son3;
         SoundEffectInstance pig;
+        SoundEffect son4;
+        SoundEffectInstance sHurt;
         SoundEffectInstance hit;
+        SoundEffectInstance hurt;
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         GameObject cochon;
+        GameObject GameOver;
         GameObject[] tortue = new GameObject[6];
         GameObject[] pomme = new GameObject[10];
         GameObject[] pipeB = new GameObject[2];
         GameObject[] pipeT = new GameObject[2];
         GameObject wallpaper;
         KeyboardState previousKey;
-        Random dePosition = new Random();
+        int pommeRendu = 0;
+        Random deDirection = new Random();
+        float timeOfDeath = 0;
+        string displayTimeOfDeath = "";
+        SpriteFont font;
 
         Rectangle fenetre;
         public bool sortir = true;
@@ -87,10 +96,10 @@ namespace Projet_02
             //cochon.position.X = fenetre.Width / 2;
             //cochon.position.Y = fenetre.Height / 2;
             cochon.position = new Vector2(fenetre.Width / 2, fenetre.Height / 2);
-
+            cochon.isAlive = true;
             cochon.origin.X = cochon.GetRect().Width / 2;
             cochon.origin.Y = cochon.GetRect().Height / 2;
-            cochon.lives = 10;
+            cochon.lives = 3;
 
             //Pomme, étant les projectiles de Méchoui le Cochon.
             for (int i = 0; i < pomme.Length; i++)
@@ -110,13 +119,17 @@ namespace Projet_02
             {
                 tortue[i] = new GameObject();
                 tortue[i].sprite = Content.Load<Texture2D>("sTortue.png");
-                tortue[i].position.X = dePosition.Next(fenetre.X, fenetre.Width);
-                tortue[i].position.Y = dePosition.Next(fenetre.Y, fenetre.Height);
                 tortue[i].origin.X = tortue[i].GetRect().Width / 2;
                 tortue[i].origin.Y = tortue[i].GetRect().Height / 2;
                 tortue[i].lives = 1;
-                tortue[i].speed = 1;
+                tortue[i].speed = 0.8f;
+                tortue[i].isAlive = true;
+
             }
+
+            GameOver = new GameObject();
+            GameOver.sprite = Content.Load<Texture2D>("GameOver.jpg");
+            GameOver.position = new Vector2(0, 0);
 
 
             base.Initialize();
@@ -136,11 +149,13 @@ namespace Projet_02
             MediaPlayer.Play(song);
             son = Content.Load<SoundEffect>("Sounds\\pig");
             son2 = Content.Load<SoundEffect>("Sounds\\hit");
+            son3 = Content.Load<SoundEffect>("Sounds\\hurt");
+            son4 = Content.Load<SoundEffect>("Sounds\\sHurt");
             hit = son2.CreateInstance();
             pig = son.CreateInstance();
-
-
-
+            hurt = son3.CreateInstance();
+            sHurt = son4.CreateInstance();
+            font = Content.Load<SpriteFont>("Font");
 
         }
 
@@ -182,17 +197,46 @@ namespace Projet_02
                 cochon.velocity.Y = cochon.velocity.Y / 1.5f;
             }
             if (Keyboard.GetState().IsKeyUp(Keys.Space) && previousKey.IsKeyDown(Keys.Space))
-                for (int i = 0; i < pomme.Length; i++)
-                {
-                    pomme[i].isAlive = true;
-                    pig.Play();
-                }
+            {
+                pomme[pommeRendu].isAlive = true;
+                pommeRendu += 1;
+                pig.Play();
+            }
 
             updateCochon();
             updatePomme();
             updateTortue();
 
             // TODO: Add your update logic here
+
+            if (pommeRendu > pomme.Length - 1)
+                pommeRendu = 0;
+
+            timeOfDeath += (int)gameTime.ElapsedGameTime.TotalSeconds;
+            displayTimeOfDeath = Convert.ToString(timeOfDeath);
+
+            cochon.timeSinceLast += (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            // Duration = hasard = temps de chacune des direction
+            // timeSinceLast = calculé à partir de la dernière fois que l'on à changé de direction
+            // Quand le temps écoulé depuis le dernier changement dépasse la "duration" on calcule un nouveau randomDirection
+            for (int i = 0; i < tortue.Length; i++)
+            {
+                tortue[i].duration = deDirection.Next(1, 10);
+                tortue[i].timeSinceLast += (float)gameTime.ElapsedGameTime.TotalSeconds;
+            }
+
+            for (int i = 0; i < tortue.Length; i++)
+            {
+                if (tortue[i].timeSinceLast > tortue[i].duration)
+                {
+                    tortue[i].randomDirection = deDirection.Next(1, 16);
+                    if (tortue[i].randomDirection > 9)
+                        tortue[i].randomDirection = 9;
+                    tortue[i].timeSinceLast = 0;
+                }
+            }
+
 
             previousKey = Keyboard.GetState();
             base.Update(gameTime);
@@ -201,30 +245,58 @@ namespace Projet_02
 
         public void updateCochon()
         {
+            if (cochon.timeSinceLast > 10)
+                cochon.canBeHurt = true;
+
+            if (cochon.lives < 1)
+            {
+                cochon.isAlive = false;
+                cochon.position.X = -500;
+                cochon.position.Y = -500;
+            }
+
             cochon.position = cochon.velocity + cochon.position;
+
+            for (int i = 0; i < tortue.Length; i++)
+            {
+                if (cochon.GetRect().Intersects(tortue[i].GetRect()) && cochon.canBeHurt == true)
+                {
+                    cochon.canBeHurt = false;
+                    cochon.lives -= 1;
+                    cochon.timeSinceLast = 0;
+                    if (cochon.lives > 0)
+                        sHurt.Play();
+                    else
+                        hurt.Play();
+
+
+                }
+            }
         }
         public void updatePomme()
         {
-            for (int i = 0; i < pomme.Length; i++)
             {
-                if (pomme[i].isAlive == true)
+                for (int i = 0; i < pomme.Length; i++)
                 {
-                    pomme[i].position.X = cochon.position.X;
-                    pomme[i].position.Y = cochon.position.Y;
-                    pomme[i].rotation = cochon.rotation;
-                    pomme[i].velocity.X = (float)Math.Cos(pomme[i].rotation) * 10f;
-                    pomme[i].velocity.Y = (float)Math.Sin(pomme[i].rotation) * 10f;
-                    pomme[i].isAlive = false;
-                }
-                pomme[i].position += pomme[i].velocity;
-
-                for (int j = 0; j < tortue.Length; j ++)
-                {
-                    if (pomme[i].GetRect().Intersects(tortue[j].GetRect()))
+                    if (pomme[i].isAlive == true)
                     {
-                        hit.Play();
+                        pomme[i].position.X = cochon.position.X;
+                        pomme[i].position.Y = cochon.position.Y;
+                        pomme[i].rotation = cochon.rotation;
+                        pomme[i].velocity.X = (float)Math.Cos(pomme[i].rotation) * 10f;
+                        pomme[i].velocity.Y = (float)Math.Sin(pomme[i].rotation) * 10f;
+                        pomme[i].isAlive = false;
                     }
+                    pomme[i].position += pomme[i].velocity;
 
+                    for (int j = 0; j < tortue.Length; j++)
+                    {
+                        if (pomme[i].GetRect().Intersects(tortue[j].GetRect())&&tortue[j].isAlive==true)
+                        {
+                            hit.Play();
+                        }
+
+                    }
                 }
             }
         }
@@ -232,35 +304,91 @@ namespace Projet_02
         {
             for (int i = 0; i < tortue.Length; i++)
             {
-                for (int j = 0; j < tortue.Length; j++)
+                if (tortue[i].isAlive==true)
                 {
-                    if (tortue[i].position.X > cochon.position.X)
+                    if (tortue[i].position.X + tortue[i].sprite.Width / 2 > fenetre.Width)
+                        tortue[i].position.X = fenetre.Width - tortue[i].sprite.Width / 2;
+                    if (tortue[i].position.X - tortue[i].sprite.Width / 2 < fenetre.X)
+                        tortue[i].position.X = fenetre.X + tortue[i].sprite.Width / 2;
+                    if (tortue[i].position.Y + tortue[i].sprite.Height / 2 > fenetre.Height)
+                        tortue[i].position.Y = fenetre.Height - tortue[i].sprite.Height / 2;
+                    if (tortue[i].position.Y - tortue[i].sprite.Height / 2 < fenetre.Y)
+                        tortue[i].position.Y = fenetre.Y + tortue[i].sprite.Height / 2;
+                }
+                
+                for (int j = 0; j < pomme.Length; j++)
+                {
+                    if (tortue[i].GetRect().Intersects(pomme[j].GetRect()))
                     {
-                        if (tortue[i].GetRect().Intersects(tortue[j].GetRect()))
-                            tortue[i].position.X -= tortue[i].speed;
-                        
-                    }
-                    else
+                        tortue[i].lives -= 1;
+                        pomme[j].position.X = -500;
+                        pomme[j].position.Y = -500;
+                    }  
+                }
+                if (tortue[i].lives < 1)
                     {
-                        if (tortue[i].GetRect().Intersects(tortue[j].GetRect()))
-                            tortue[i].position.X += tortue[i].speed;
-                       
+                        tortue[i].isAlive = false;
+                        tortue[i].position.X = -500;
+                        tortue[i].position.Y = -500;
                     }
-                    if (tortue[i].position.Y > cochon.position.Y)
-                    {
-                        if (tortue[i].GetRect().Intersects(tortue[j].GetRect()))
-                            tortue[i].position.Y -= tortue[i].speed;
-                    }
-                    else
-                    {
-                        if (tortue[i].GetRect().Intersects(tortue[j].GetRect()))
-                            tortue[i].position.Y += tortue[i].speed;
-                        
-                    }
+
+                switch (tortue[i].randomDirection)
+                {
+                    case 1:
+                        tortue[i].position.X -= tortue[i].speed;
+                        break;
+                    case 2:
+                        tortue[i].position.X -= tortue[i].speed;
+                        tortue[i].position.Y -= tortue[i].speed;
+                        break;
+                    case 3:
+                        tortue[i].position.Y -= tortue[i].speed;
+                        break;
+                    case 4:
+                        tortue[i].position.Y -= tortue[i].speed;
+                        tortue[i].position.X += tortue[i].speed;
+                        break;
+                    case 5:
+                        tortue[i].position.X += tortue[i].speed;
+                        break;
+                    case 6:
+                        tortue[i].position.X += tortue[i].speed;
+                        tortue[i].position.Y += tortue[i].speed;
+                        break;
+                    case 7:
+                        tortue[i].position.Y += tortue[i].speed;
+                        break;
+                    case 8:
+                        tortue[i].position.Y += tortue[i].speed;
+                        tortue[i].position.X -= tortue[i].speed;
+                        break;
+                    case (9):
+                        {
+
+                            if (tortue[i].position.X < cochon.position.X)
+                            {
+                                tortue[i].position.X += tortue[i].speed;
+                            }
+                            else
+                            {
+                                tortue[i].position.X -= tortue[i].speed;
+                            }
+
+
+                            if (tortue[i].position.Y < cochon.position.Y)
+                            {
+                                tortue[i].position.Y += tortue[i].speed;
+                            }
+                            else
+                            {
+                                tortue[i].position.Y -= tortue[i].speed;
+                            }
+
+                        }
+                        break;
                 }
             }
         }
-
 
         /// <summary>
         /// This is called when the game should draw itself.
@@ -281,18 +409,23 @@ namespace Projet_02
                 else
                     spriteBatch.Draw(pipeB[i].sprite, pipeB[i].position, Color.White);
             }
-            //Affichage du projectil
-            for (int i = 0; i < pomme.Length; i++)
-                spriteBatch.Draw(pomme[i].sprite, pomme[i].position, null, Color.White, pomme[i].rotation, pomme[i].origin, 1f, SpriteEffects.None, 0);
-
             //Affichage du cochon
-            spriteBatch.Draw(cochon.sprite, cochon.position, null, Color.White, cochon.rotation, cochon.origin, 1f, SpriteEffects.None, 0);
+            if (cochon.isAlive == true)
+            {
+                spriteBatch.Draw(cochon.sprite, cochon.position, null, Color.White, cochon.rotation, cochon.origin, 1f, SpriteEffects.None, 0);
+            }
 
             //Affichage des tortues Leonardo
             for (int i = 0; i < tortue.Length; i++)
             {
-                spriteBatch.Draw(tortue[i].sprite, tortue[i].position, null, Color.White, tortue[i].rotation, tortue[i].origin, 1f, SpriteEffects.None, 0);
+                if (tortue[i].isAlive == true)
+                {
+                    spriteBatch.Draw(tortue[i].sprite, tortue[i].position, null, Color.White, tortue[i].rotation, tortue[i].origin, 1f, SpriteEffects.None, 0);
+                }
             }
+            //Affichage du projectile
+            for (int i = 0; i < pomme.Length; i++)
+                spriteBatch.Draw(pomme[i].sprite, pomme[i].position, null, Color.White, pomme[i].rotation, pomme[i].origin, 1f, SpriteEffects.None, 0);
 
             //Affichage du dessus du tuyau
             for (int i = 0; i <= 1; i++)
@@ -301,6 +434,12 @@ namespace Projet_02
                     spriteBatch.Draw(pipeT[i].sprite, pipeT[i].position, null, Color.White, 0, Vector2.Zero, 1, SpriteEffects.FlipHorizontally, 0);
                 else
                     spriteBatch.Draw(pipeT[i].sprite, pipeT[i].position, Color.White);
+            }
+            //Affichage du GameOver
+            if (cochon.isAlive != true)
+            {
+                spriteBatch.Draw(GameOver.sprite, GameOver.position);
+                spriteBatch.DrawString(font, displayTimeOfDeath , new Vector2(100, 100), Color.Black);
             }
 
             spriteBatch.End();
