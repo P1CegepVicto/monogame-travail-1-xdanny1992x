@@ -35,10 +35,11 @@ namespace Game1
 
         public Rectangle[] tabPulley =
         {
-            new Rectangle(0, 0, 179, 77),
-            new Rectangle(0, 74, 179, 77),
-            new Rectangle(0, 154, 179, 77),
-            new Rectangle(0, 231, 179, 77)
+            new Rectangle(0, 236, 179, 73),
+            new Rectangle(0, 151, 179, 73),
+            new Rectangle(0, 73, 179, 73),
+            new Rectangle(0, 0, 179, 73)
+
         };
 
 

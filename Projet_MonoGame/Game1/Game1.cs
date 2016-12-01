@@ -188,7 +188,7 @@ namespace Game1
             updateCloudFR();
             updateCage();
             updateJuan();
-            updateGear();
+            updateMechanism();
 
             base.Update(gameTime);
 
@@ -320,38 +320,46 @@ namespace Game1
             }
         }
 
-        public void updateGear()
+        public void updateMechanism()
         {
             if (gear.objetState == Mechanism.etats.moving)
             {
                 gear.spriteAfficher = gear.tabGear[gear.state];
+                pulley.spriteAfficher = pulley.tabPulley[pulley.state];
             }
 
             gear.cpt++;
+            pulley.cpt++;
 
-            if (gear.cpt == 10) //Temps d'attente avant de changer de frame.   1=rapide 10=lent
+            if (gear.cpt == 5) //Temps d'attente avant de changer de frame.   1=rapide 10=lent
             {
                 //Gestion des animations. Si le compteur (cpt) == le chiffre mentionné, on change de frame.
                 if (Keyboard.GetState().IsKeyDown(Keys.W) && cage.height > 0)
                 {
                     gear.state++;
+                    pulley.state++;
 
                     if (gear.state == gear.nbEtatDown)
                     {
                         gear.state = 0;
+                        pulley.state = 0;
                     }
+
                 }
                 if (Keyboard.GetState().IsKeyDown(Keys.S) && cage.height<(600/cage.speed))
                 {
                     if (gear.state == 0)
                     {
                         gear.state = gear.nbEtatUp;
+                        pulley.state = pulley.nbEtatUp;
                     }
 
                     gear.state--;
+                    pulley.state--;
+
 
                 }
-                
+
                 gear.cpt = 0;
             }
         }
