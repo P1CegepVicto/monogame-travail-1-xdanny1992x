@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Projet_01", "Projet_01\Proj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Projet_02", "Projet_02\Projet_02.csproj", "{832D2D17-B7CF-43A7-B005-0621C82ECC20}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Game1", "Game1\Game1.csproj", "{9176CBF9-A5DE-4947-91CA-6038A2DE64FD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Projet_03", "Game1\Projet_03.csproj", "{9176CBF9-A5DE-4947-91CA-6038A2DE64FD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

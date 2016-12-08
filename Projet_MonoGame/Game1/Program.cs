@@ -1,6 +1,7 @@
-﻿using System;
+﻿using Game1;
+using System;
 
-namespace Game1
+namespace Projet_03
 {
 #if WINDOWS || LINUX
     /// <summary>
@@ -14,8 +15,11 @@ namespace Game1
         [STAThread]
         static void Main()
         {
+
             using (var game = new Game1())
+
                 game.Run();
+            
         }
     }
 #endif

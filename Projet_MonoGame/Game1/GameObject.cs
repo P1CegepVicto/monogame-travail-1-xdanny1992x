@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Game1
+namespace Projet_03
 {
     class GameObject
     {
@@ -15,6 +15,17 @@ namespace Game1
         public Vector2 position;
         public float speed;
         public int height;
+        public bool isAlive;
+        public Rectangle rectCollision = new Rectangle();
+        public Rectangle GetRect()
+        {
+            rectCollision.X = (int)this.position.X;
+            rectCollision.Y = (int)this.position.Y;
+            rectCollision.Width = (int)this.sprite.Width;
+            rectCollision.Height = (int)this.sprite.Height;
+            return rectCollision;
+
+        }
 
     }
 }

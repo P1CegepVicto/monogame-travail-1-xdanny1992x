@@ -4,8 +4,9 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Audio;
 using System;
 using Microsoft.Xna.Framework.Media;
+using Game1;
 
-namespace Game1
+namespace Projet_03
 {
     /// <summary>
     /// This is the main type for your game.
@@ -14,6 +15,9 @@ namespace Game1
     {
         Rectangle fenetre;
         GameObject wallpaper;
+        GameObject menu;
+        GameObject GO;
+        GameObject choix;
         GameObject temple;
         GameObject cloudBL;
         GameObject cloudBR;
@@ -22,12 +26,45 @@ namespace Game1
         GameObject cloudFL;
         GameObject cloudFR;
         GameObject cage;
+        GameObject[] HUD = new GameObject[3];
+        GameObject[] bullet = new GameObject[5];
         Player juan;
         Mechanism gear;
         Mechanism pulley;
+        Enemy[] fly = new Enemy[300];
+        Random de = new Random();
+        float newFly = 0;
+        float sinceLastBullet = 0;
+        float sinceLastLive = 0;
+        int currentFly = 0;
+        int currentBullet = 0;
+        float totalGameTime;
+        bool counting =false;
+        bool repeat = true;
+        KeyboardState previousKey;
         Texture2D rope;
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+        enum state { MainMenu, Play, GameOver };
+        state objetState = state.MainMenu;
+        //SOUNDS
+        SoundEffect son;
+        SoundEffectInstance gearS;
+        SoundEffect son1;
+        SoundEffectInstance whoopS;
+        SoundEffect son2;
+        SoundEffectInstance MainMenuS;
+        SoundEffect son3;
+        SoundEffectInstance GameOverS;
+        SoundEffect son4;
+        SoundEffectInstance PlayingS;
+        SoundEffect son5;
+        SoundEffectInstance DieS;
+        SoundEffect son6;
+        SoundEffectInstance LaughS;
+        //FONT
+        SpriteFont font;
+        string GameOverF = "";
 
 
 
@@ -45,6 +82,8 @@ namespace Game1
         /// </summary>
         protected override void Initialize()
         {
+
+
             this.graphics.PreferredBackBufferWidth = graphics.GraphicsDevice.DisplayMode.Width;
             this.graphics.PreferredBackBufferHeight = graphics.GraphicsDevice.DisplayMode.Height;
             this.graphics.ToggleFullScreen();
@@ -55,6 +94,7 @@ namespace Game1
             wallpaper.sprite = Content.Load<Texture2D>("Wallpaper.png");
             wallpaper.position.X = fenetre.X;
             wallpaper.position.Y = fenetre.Y;
+
 
             //temple
             temple = new GameObject();
@@ -114,6 +154,7 @@ namespace Game1
 
             //Juan
             juan = new Player();
+            juan.live = 3;
             juan.objetState = Player.etats.idle;
             juan.position = new Rectangle((int)(cage.position.X + 24), (int)(cage.position.Y + 44), 130, 144);   //Position initiale de Juan
             juan.sprite = Content.Load<Texture2D>("IndianSSheet.png");
@@ -133,6 +174,51 @@ namespace Game1
             pulley.sprite = Content.Load<Texture2D>("Pulley_SpriteSheet.png");
             pulley.spriteAfficher = pulley.tabPulley[1];
 
+            //Fly
+            for (int i = 0; i < fly.Length; i++)
+            {
+                fly[i] = new Enemy();
+                fly[i].objetState = Enemy.etats.flying;
+                fly[i].sprite = Content.Load<Texture2D>("Bee_SpriteSheet.png");
+                fly[i].canKill = true;
+                fly[i].position = new Rectangle(1930, -8000, 64, 44);
+                fly[i].spriteAfficher = fly[i].tabFlying[1];
+                fly[i].speed = de.Next(50000, 350000);
+                fly[i].isAlive = false;
+                fly[i].fall = 0;
+            }
+
+            //Bullet
+            for (int i = 0; i < bullet.Length; i++)
+            {
+                bullet[i] = new GameObject();
+                bullet[i].isAlive = false;
+                bullet[i].sprite = Content.Load<Texture2D>("Bullet.png");
+                bullet[i].speed = 12;
+                bullet[i].position.X = juan.position.X + 64;
+                bullet[i].position.Y = juan.position.Y + 48;
+            }
+
+            //MainMenu
+            menu = new GameObject();
+            menu.sprite = Content.Load<Texture2D>("MainMenu.png");
+            menu.position.X = fenetre.X;
+            menu.position.Y = fenetre.Y;
+            objetState = state.MainMenu;
+
+            //MainMenu
+            GO = new GameObject();
+            GO.sprite = Content.Load<Texture2D>("GameOver.png");
+            GO.position.X = fenetre.X;
+            GO.position.Y = fenetre.Y;
+
+            //Choix
+            choix = new GameObject();
+            choix.sprite = Content.Load<Texture2D>("Gear.png");
+            choix.position.X = 1200;
+            choix.position.Y = 685;
+            objetState = state.MainMenu;
+
             base.Initialize();
         }
 
@@ -142,14 +228,29 @@ namespace Game1
         /// </summary>
         protected override void LoadContent()
         {
-            // Create a new SpriteBatch, which can be used to draw textures.
+            //ROPE
             spriteBatch = new SpriteBatch(GraphicsDevice);
-
-
-
             rope = Content.Load<Texture2D>("Rope.png");
 
-            // TODO: use this.Content to load your game content here
+            //SOUNDS
+            son = Content.Load<SoundEffect>("Sounds\\Gear");
+            gearS = son.CreateInstance();
+            son1 = Content.Load<SoundEffect>("Sounds\\Whoop");
+            whoopS = son1.CreateInstance();
+            son2 = Content.Load<SoundEffect>("Sounds\\MainMenu");
+            MainMenuS = son2.CreateInstance();
+            son3 = Content.Load<SoundEffect>("Sounds\\GameOver");
+            GameOverS = son3.CreateInstance();
+            son4 = Content.Load<SoundEffect>("Sounds\\Playing");
+            PlayingS = son4.CreateInstance();
+            son5 = Content.Load<SoundEffect>("Sounds\\Die");
+            DieS = son5.CreateInstance();
+            son6 = Content.Load<SoundEffect>("Sounds\\Laugh");
+            LaughS = son6.CreateInstance();
+
+            //FONT
+            font = Content.Load<SpriteFont>("Font");
+
         }
 
         /// <summary>
@@ -168,9 +269,81 @@ namespace Game1
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            if (Keyboard.GetState().IsKeyDown(Keys.Escape))
-                Exit();
+            //MAIN MENU
+            if (objetState == state.MainMenu)
+            {
+                MainMenuS.Play();
+                if (Keyboard.GetState().IsKeyDown(Keys.Down) || Keyboard.GetState().IsKeyDown(Keys.S))
+                {
+                    choix.position.Y = 790;
+                    choix.position.X = 1300;
+                }
+                if (Keyboard.GetState().IsKeyDown(Keys.Up) || Keyboard.GetState().IsKeyDown(Keys.W))
+                {
+                    choix.position.Y = 685;
+                    choix.position.X = 1200;
+                }
+                if (Keyboard.GetState().IsKeyDown(Keys.Enter))
+                {
+                    if (choix.position.Y == 685)
+                    {
+                        objetState = state.Play;
+                        counting = true;
+                        MainMenuS.Stop();
+                    }
+                    if (choix.position.Y == 790)
+                        Exit();
+                }
+            }
 
+            //GAME OVER
+            if (objetState == state.GameOver )
+            {
+                choix.position.X = 1300;
+                GameOverF = Convert.ToString(totalGameTime);
+                counting = false;
+                if (repeat == true)
+                {
+                    PlayingS.Stop();
+                    GameOverS.Play();
+                    repeat = false;
+                }
+
+                if (Keyboard.GetState().IsKeyDown(Keys.Down) || Keyboard.GetState().IsKeyDown(Keys.S))
+                {
+                    choix.position.Y = 790;
+                    choix.position.X = 1300;
+                }
+                if (Keyboard.GetState().IsKeyDown(Keys.Up)|| Keyboard.GetState().IsKeyDown(Keys.W))
+                {
+                    choix.position.X = 1300;
+                    choix.position.Y = 685;
+                }
+                if (Keyboard.GetState().IsKeyDown(Keys.Enter))
+                {
+                    if (choix.position.Y == 685)
+                    {
+                        for (int i = 0; i < fly.Length; i++)
+                        {
+                            if (objetState == state.GameOver)
+                            {
+                                fly[i].isAlive = false;
+                                fly[i].position.X = 9999;
+                                cage.position.Y = 256;
+                                cage.height = 0;
+                                totalGameTime = 0;
+                                counting = true;
+                                objetState = state.Play;
+                            }
+                        }
+                        objetState = state.Play;
+                        juan.live = 3;
+                        
+                    }
+                    if (choix.position.Y == 790)
+                        Exit();
+                }
+            }
             if (Keyboard.GetState().IsKeyDown(Keys.D))
             {
                 juan.objetState = Player.etats.shoot;
@@ -180,6 +353,9 @@ namespace Game1
                 juan.objetState = Player.etats.idle;
             }
 
+            if (objetState == state.Play)
+            {
+            PlayingS.Play();   
             updateCloudBL();
             updateCloudBR();
             updateCloudML();
@@ -189,9 +365,75 @@ namespace Game1
             updateCage();
             updateJuan();
             updateMechanism();
+            updateEnemy();
+            updateBullet();
+            }
 
-            base.Update(gameTime);
 
+            //Création des mouches
+            if (objetState == state.Play)
+            {
+                newFly += (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+                if (newFly >= (float)de.Next(2, 7))//Création d'une mouche à toutes les [random X] secondes.
+                {
+                    if (fly[currentFly].isAlive == false)
+                    {
+                        fly[currentFly].position = new Rectangle(1930, de.Next(320, fenetre.Height - 186), 64, 44);
+                        fly[currentFly].isAlive = true;
+                        newFly = 0;
+                        currentFly += 1;
+                    }
+
+                }
+
+                if (currentFly > fly.Length - 1)
+                    currentFly = 0;
+            }
+            //Création des projectiles
+            if (objetState == state.Play)
+            {
+                sinceLastBullet += (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+                if (juan.spriteAfficher == juan.tabShoot[4] && (Keyboard.GetState().IsKeyUp(Keys.D)))
+                {
+                    juan.spriteAfficher = juan.tabShoot[4];
+                    bullet[currentBullet].isAlive = true;
+                    currentBullet++;
+                    whoopS.Play();
+                }
+                else if (Keyboard.GetState().IsKeyDown(Keys.D))
+                {
+                    if (sinceLastBullet >= 1f / 2)
+                    {
+                        bullet[currentBullet].isAlive = true;
+                        currentBullet++;
+                        sinceLastBullet = 0;
+                        whoopS.Play();
+                    }
+                }
+
+                if (currentBullet > bullet.Length - 1)
+                {
+                    currentBullet = 0;
+                }
+            }
+
+            if (objetState == state.Play)
+            {
+                //Intervalle entre les vies perdues
+                sinceLastLive += (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+                //Temps total d'une partie
+                if (counting==true)
+                {
+                    totalGameTime += (float)gameTime.TotalGameTime.TotalSeconds/340;
+                }
+
+                previousKey = Keyboard.GetState();
+
+                base.Update(gameTime);
+            }
         }
 
         public void updateCloudBL()
@@ -234,7 +476,6 @@ namespace Game1
             }
         }
 
-
         public void updateCloudFL()
         {
             cloudFL.position.X -= cloudFL.speed;
@@ -258,26 +499,27 @@ namespace Game1
         public void updateCage()
         {
 
-            if (Keyboard.GetState().IsKeyDown(Keys.S))
+            if (Keyboard.GetState().IsKeyDown(Keys.S)|| Keyboard.GetState().IsKeyDown(Keys.Down))
             {
                 if (cage.height < (600 / cage.speed))
                 {
                     cage.position.Y += cage.speed;
                     cage.height++;
                     gear.objetState = Mechanism.etats.moving;
+                    gearS.Play();
                 }
                 else
                     cage.position.Y += 0;
             }
 
-
-            if (Keyboard.GetState().IsKeyDown(Keys.W))
+            if (Keyboard.GetState().IsKeyDown(Keys.W)|| Keyboard.GetState().IsKeyDown(Keys.Up))
             {
                 if (cage.height > 0)
                 {
                     cage.position.Y -= cage.speed;
                     cage.height--;
                     gear.objetState = Mechanism.etats.moving;
+                    gearS.Play();
 
                 }
                 else
@@ -287,6 +529,7 @@ namespace Game1
 
         public void updateJuan()
         {
+
             //Juan suit la position de la cage.
             juan.position.X = (int)cage.position.X - 10;
             juan.position.Y = (int)cage.position.Y + 40;
@@ -312,11 +555,15 @@ namespace Game1
                 {
                     juan.shootState = 0;
                 }
-                if (juan.idleState ==  juan.nbEtatIdle)
+                if (juan.idleState == juan.nbEtatIdle)
                 {
                     juan.idleState = 0;
                 }
                 juan.cpt = 0;
+            }
+            if (juan.live < 1)
+            {
+                objetState = state.GameOver;
             }
         }
 
@@ -327,14 +574,13 @@ namespace Game1
                 gear.spriteAfficher = gear.tabGear[gear.state];
                 pulley.spriteAfficher = pulley.tabPulley[pulley.state];
             }
-
             gear.cpt++;
             pulley.cpt++;
 
             if (gear.cpt == 5) //Temps d'attente avant de changer de frame.   1=rapide 10=lent
             {
                 //Gestion des animations. Si le compteur (cpt) == le chiffre mentionné, on change de frame.
-                if (Keyboard.GetState().IsKeyDown(Keys.W) && cage.height > 0)
+                if ((Keyboard.GetState().IsKeyDown(Keys.W)|| Keyboard.GetState().IsKeyDown(Keys.Up)) && cage.height > 0)
                 {
                     gear.state++;
                     pulley.state++;
@@ -346,21 +592,107 @@ namespace Game1
                     }
 
                 }
-                if (Keyboard.GetState().IsKeyDown(Keys.S) && cage.height<(600/cage.speed))
+                if ((Keyboard.GetState().IsKeyDown(Keys.S)|| Keyboard.GetState().IsKeyDown(Keys.Down)) && cage.height < (600 / cage.speed))
                 {
                     if (gear.state == 0)
                     {
                         gear.state = gear.nbEtatUp;
                         pulley.state = pulley.nbEtatUp;
                     }
-
                     gear.state--;
                     pulley.state--;
+                }
+                gear.cpt = 0;
+            }
+        }
+        public void updateEnemy()
+        {
 
-
+            for (int i = 0; i < fly.Length; i++)
+            {
+                if (fly[i].isAlive == true)
+                {
+                    fly[currentFly].position = new Rectangle(1930, de.Next(320, fenetre.Height - 186), 64, 44);
+                    fly[i].position.X -= (int)(fly[i].speed) / 100000 *5; //Vitesse
+                }
+                if (fly[i].isDead == true)
+                {
+                    fly[i].position.Y += (int)(fly[i].fall) / 2;
+                    fly[i].fall += (float)0.6;
                 }
 
-                gear.cpt = 0;
+                fly[i].cpt++;
+
+                if (fly[i].objetState == Enemy.etats.flying)
+                {
+                    fly[i].spriteAfficher = fly[i].tabFlying[fly[i].state];
+                }
+                else if (fly[i].objetState == Enemy.etats.dead)
+                {
+                    fly[i].spriteAfficher = fly[i].tabDead[fly[i].state];
+                }
+
+                if (fly[i].cpt == 5) //Temps d'attente avant de changer de frame.   1=rapide 10=lent
+                {
+                    fly[i].state++;
+
+                    if (fly[i].state == fly[i].nbEtatFlying)
+                    {
+                        fly[i].state = 0;
+                    }
+                    fly[i].cpt = 0;
+                }
+                if (fly[i].position.X + fly[i].sprite.Width < fenetre.X || fly[i].position.Y - fly[i].sprite.Height > fenetre.Height)
+                {
+                    fly[i].isAlive = false;
+                    fly[i].isDead = true;
+                }
+                if (fly[i].position.X + fly[i].sprite.Width < fenetre.X && fly[i].canKill == true)
+                {
+                    if (sinceLastLive > 1f)
+                    {
+                        juan.live--;
+                        fly[i].position.X = 9999;
+                        sinceLastLive = 0;
+                        LaughS.Play();
+                    }
+                }
+
+                for (int j = 0; j < bullet.Length; j++)
+                {
+                    if (fly[i].isAlive == true && fly[i].GetRect().Intersects(bullet[j].GetRect())&&bullet[j].isAlive==true)
+                    {
+                        bullet[j].isAlive = false;
+                        fly[i].isDead = true;
+                        fly[i].canKill = false;
+                        DieS.Play();
+                        fly[i].objetState = Enemy.etats.dead;
+                    }
+                }
+
+            }
+
+        }
+
+        public void updateBullet()
+        {
+            for (int i = 0; i < bullet.Length; i++)
+            {
+                if (bullet[i].isAlive == true)
+                {
+                    bullet[i].position.X += bullet[i].speed;
+                    
+                }
+                else
+                {
+                    bullet[i].position.X = juan.position.X + 88;
+                    bullet[i].position.Y = juan.position.Y + 52;
+                }
+
+                if (bullet[i].position.X > fenetre.Width)
+                {
+                    bullet[i].isAlive = false;
+                }
             }
         }
 
@@ -372,6 +704,8 @@ namespace Game1
             spriteBatch.Draw(rope, new Rectangle((int)p2.X, (int)p2.Y, (int)dist, 2), null, Color.BurlyWood, angle, Vector2.Zero, SpriteEffects.None, 0);
 
         }
+    
+
         /// <summary>
         /// This is called when the game should draw itself.
         /// </summary>
@@ -403,13 +737,25 @@ namespace Game1
 
             //Affichage de la corde #2
             DrawRope(new Vector2(cage.position.X + 46, 214), new Vector2(cage.position.X + 46, cage.position.Y + 6));
-            
 
             //Affichage de la pulley
             spriteBatch.Draw(pulley.sprite, pulley.position, pulley.spriteAfficher, Color.White);
 
+            //Affichage des projectiles
+            for (int i = 0; i < bullet.Length; i++)
+            {
+                if (bullet[i].isAlive == true)
+                    spriteBatch.Draw(bullet[i].sprite, bullet[i].position, Color.White);
+            }
+
             //Affichage de Juan
             spriteBatch.Draw(juan.sprite, juan.position, juan.spriteAfficher, Color.White);
+
+            //Affichage des mouches
+            for (int i = 0; i < fly.Length; i++)
+            {
+                spriteBatch.Draw(fly[i].sprite, fly[i].position, fly[i].spriteAfficher, Color.White);
+            }
 
             //Affichage du cloudM(iddle)
             spriteBatch.Draw(cloudML.sprite, cloudML.position);
@@ -418,8 +764,21 @@ namespace Game1
             //Affichage du cloudF(ront)
             spriteBatch.Draw(cloudFL.sprite, cloudFL.position);
             spriteBatch.Draw(cloudFR.sprite, cloudFR.position);
+                        
+            //Affichage du MainMenu
+            if (objetState == state.MainMenu)
+                spriteBatch.Draw(menu.sprite, menu.position);
 
-            
+            //Affichage du GameOver
+            if (objetState == state.GameOver)
+            {
+                spriteBatch.Draw(GO.sprite, GO.position);
+            }
+
+            //Affichage du Choix
+            if (objetState == state.MainMenu || objetState == state.GameOver)
+                spriteBatch.Draw(choix.sprite, choix.position);
+
 
             spriteBatch.End();
 
