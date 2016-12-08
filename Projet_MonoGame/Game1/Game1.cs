@@ -214,7 +214,7 @@ namespace Projet_03
 
             //Choix
             choix = new GameObject();
-            choix.sprite = Content.Load<Texture2D>("Gear.png");
+            choix.sprite = Content.Load<Texture2D>("choix.png");
             choix.position.X = 1200;
             choix.position.Y = 685;
             objetState = state.MainMenu;
@@ -613,7 +613,7 @@ namespace Projet_03
                 if (fly[i].isAlive == true)
                 {
                     fly[currentFly].position = new Rectangle(1930, de.Next(320, fenetre.Height - 186), 64, 44);
-                    fly[i].position.X -= (int)(fly[i].speed) / 100000 *5; //Vitesse
+                    fly[i].position.X -= (int)(fly[i].speed) / 100000 *2; //Vitesse
                 }
                 if (fly[i].isDead == true)
                 {
