@@ -26,7 +26,7 @@ namespace Projet_03
         GameObject cloudFL;
         GameObject cloudFR;
         GameObject cage;
-        GameObject[] HUD = new GameObject[3];
+        GameObject HUD;
         GameObject[] bullet = new GameObject[5];
         Player juan;
         Mechanism gear;
@@ -38,8 +38,7 @@ namespace Projet_03
         float sinceLastLive = 0;
         int currentFly = 0;
         int currentBullet = 0;
-        float totalGameTime;
-        bool counting =false;
+        int score = 0;
         bool repeat = true;
         KeyboardState previousKey;
         Texture2D rope;
@@ -62,11 +61,10 @@ namespace Projet_03
         SoundEffectInstance DieS;
         SoundEffect son6;
         SoundEffectInstance LaughS;
-        //FONT
+        //FONT & TEXT
         SpriteFont font;
-        string GameOverF = "";
-
-
+        string liveHUD = "";
+        string scoreHUD = "";
 
         public Game1()
         {
@@ -74,12 +72,6 @@ namespace Projet_03
             Content.RootDirectory = "Content";
         }
 
-        /// <summary>
-        /// Allows the game to perform any initialization it needs to before starting to run.
-        /// This is where it can query for any required services and load any non-graphic
-        /// related content.  Calling base.Initialize will enumerate through any components
-        /// and initialize them as well.
-        /// </summary>
         protected override void Initialize()
         {
 
@@ -95,6 +87,11 @@ namespace Projet_03
             wallpaper.position.X = fenetre.X;
             wallpaper.position.Y = fenetre.Y;
 
+            //HUD
+            HUD = new GameObject();
+            HUD.sprite = Content.Load<Texture2D>("Score.png");
+            HUD.position.X = fenetre.X+40;
+            HUD.position.Y = fenetre.Height-(HUD.sprite.Height+30);
 
             //temple
             temple = new GameObject();
@@ -288,7 +285,6 @@ namespace Projet_03
                     if (choix.position.Y == 685)
                     {
                         objetState = state.Play;
-                        counting = true;
                         MainMenuS.Stop();
                     }
                     if (choix.position.Y == 790)
@@ -299,9 +295,12 @@ namespace Projet_03
             //GAME OVER
             if (objetState == state.GameOver )
             {
+                for (int i = 0; i < fly.Length; i++)
+                {
+                    fly[i].isAlive = false;
+                    fly[i].position.X = 9999;
+                }
                 choix.position.X = 1300;
-                GameOverF = Convert.ToString(totalGameTime);
-                counting = false;
                 if (repeat == true)
                 {
                     PlayingS.Stop();
@@ -323,19 +322,15 @@ namespace Projet_03
                 {
                     if (choix.position.Y == 685)
                     {
-                        for (int i = 0; i < fly.Length; i++)
-                        {
+
                             if (objetState == state.GameOver)
                             {
-                                fly[i].isAlive = false;
-                                fly[i].position.X = 9999;
                                 cage.position.Y = 256;
                                 cage.height = 0;
-                                totalGameTime = 0;
-                                counting = true;
                                 objetState = state.Play;
+
                             }
-                        }
+                        
                         objetState = state.Play;
                         juan.live = 3;
                         
@@ -352,6 +347,9 @@ namespace Projet_03
             {
                 juan.objetState = Player.etats.idle;
             }
+
+            liveHUD = juan.live.ToString();
+            scoreHUD = score.ToString();
 
             if (objetState == state.Play)
             {
@@ -387,7 +385,7 @@ namespace Projet_03
 
                 }
 
-                if (currentFly > fly.Length - 1)
+                if (currentFly > fly.Length-1 )
                     currentFly = 0;
             }
             //Création des projectiles
@@ -423,12 +421,6 @@ namespace Projet_03
             {
                 //Intervalle entre les vies perdues
                 sinceLastLive += (float)gameTime.ElapsedGameTime.TotalSeconds;
-
-                //Temps total d'une partie
-                if (counting==true)
-                {
-                    totalGameTime += (float)gameTime.TotalGameTime.TotalSeconds/340;
-                }
 
                 previousKey = Keyboard.GetState();
 
@@ -615,7 +607,7 @@ namespace Projet_03
                     fly[currentFly].position = new Rectangle(1930, de.Next(320, fenetre.Height - 186), 64, 44);
                     fly[i].position.X -= (int)(fly[i].speed) / 100000 *2; //Vitesse
                 }
-                if (fly[i].isDead == true)
+                if (fly[i].isDead == true&&fly[i].position.Y<1200)
                 {
                     fly[i].position.Y += (int)(fly[i].fall) / 2;
                     fly[i].fall += (float)0.6;
@@ -660,13 +652,18 @@ namespace Projet_03
 
                 for (int j = 0; j < bullet.Length; j++)
                 {
-                    if (fly[i].isAlive == true && fly[i].GetRect().Intersects(bullet[j].GetRect())&&bullet[j].isAlive==true)
+                    if (fly[i].isAlive == true && fly[i].GetRect().Intersects(bullet[j].GetRect())&&bullet[j].isAlive==true && fly[i].isDead==false)
                     {
+                        score++;
                         bullet[j].isAlive = false;
                         fly[i].isDead = true;
                         fly[i].canKill = false;
                         DieS.Play();
                         fly[i].objetState = Enemy.etats.dead;
+                        if (fly[i].position.Y > 1100)
+                        {
+                            fly[i].speed = 0 ;
+                        }
                     }
                 }
 
@@ -704,7 +701,6 @@ namespace Projet_03
             spriteBatch.Draw(rope, new Rectangle((int)p2.X, (int)p2.Y, (int)dist, 2), null, Color.BurlyWood, angle, Vector2.Zero, SpriteEffects.None, 0);
 
         }
-    
 
         /// <summary>
         /// This is called when the game should draw itself.
@@ -764,7 +760,12 @@ namespace Projet_03
             //Affichage du cloudF(ront)
             spriteBatch.Draw(cloudFL.sprite, cloudFL.position);
             spriteBatch.Draw(cloudFR.sprite, cloudFR.position);
-                        
+
+            //Affichage HUD
+            spriteBatch.Draw(HUD.sprite, HUD.position, Color.White);
+            spriteBatch.DrawString(font, scoreHUD, new Vector2(180, 960), Color.MidnightBlue);
+            spriteBatch.DrawString(font, liveHUD, new Vector2(180, 810), Color.MidnightBlue);
+
             //Affichage du MainMenu
             if (objetState == state.MainMenu)
                 spriteBatch.Draw(menu.sprite, menu.position);
@@ -778,6 +779,7 @@ namespace Projet_03
             //Affichage du Choix
             if (objetState == state.MainMenu || objetState == state.GameOver)
                 spriteBatch.Draw(choix.sprite, choix.position);
+
 
 
             spriteBatch.End();
